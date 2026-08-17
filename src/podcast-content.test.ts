@@ -18,6 +18,10 @@ describe("readPodcastId", () => {
     expect(readPodcastId("  6a6ae5e1d64a8c30f478a339 ")).toBe("6a6ae5e1d64a8c30f478a339");
   });
 
+  it("does not match a 24-hex-digit run embedded in a longer hex string", () => {
+    expect(readPodcastId("aa6a7b21b41baaaf6f5d64b46000")).toBeNull();
+  });
+
   it("rejects anything that is not such an id", () => {
     expect(readPodcastId("")).toBeNull();
     expect(readPodcastId("nope")).toBeNull();
@@ -38,6 +42,10 @@ describe("readEpisodeId", () => {
     expect(readEpisodeId("  8398abc1-c638-4175-bed1-e47809b22931 ")).toBe(
       "8398abc1-c638-4175-bed1-e47809b22931",
     );
+  });
+
+  it("does not match a uuid-shaped run embedded in a longer hex string", () => {
+    expect(readEpisodeId("ff8398abc1-c638-4175-bed1-e47809b22931")).toBeNull();
   });
 
   it("rejects anything that is not such an id", () => {
@@ -65,6 +73,11 @@ describe("documentLocales", () => {
   it("prefers the document language over the browser language", () => {
     document.documentElement.setAttribute("lang", "fr-FR");
     expect(documentLocales()[0]).toBe("fr_FR");
+  });
+
+  it("normalizes region casing regardless of how the browser or page spelled it", () => {
+    document.documentElement.setAttribute("lang", "en-us");
+    expect(documentLocales()[0]).toBe("en_US");
   });
 
   it("falls back to the content-language meta tag", () => {

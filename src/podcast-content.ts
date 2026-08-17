@@ -28,10 +28,10 @@ export interface EpisodeAudioResponse {
 }
 
 /** The shape of a Staffbase backend id: 24 hex digits. */
-const PODCAST_ID = /[0-9a-f]{24}/i;
+const PODCAST_ID = /(?<![0-9a-f])[0-9a-f]{24}(?![0-9a-f])/i;
 
 /** The shape of an episode id: a UUID. */
-const EPISODE_ID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+const EPISODE_ID = /(?<![0-9a-f])[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![0-9a-f])/i;
 
 /**
  * Finds the last match of `pattern` in `raw`, or null if there is none.
@@ -45,6 +45,11 @@ function readId(raw: unknown, pattern: RegExp): string | null {
   if (typeof raw !== "string") return null;
   const matches = raw.trim().match(new RegExp(pattern, "gi"));
   return matches === null ? null : matches[matches.length - 1].toLowerCase();
+}
+
+function normalizeLocale(raw: string): string {
+  const [language, region] = raw.trim().replace("-", "_").split("_");
+  return region ? `${language.toLowerCase()}_${region.toUpperCase()}` : language.toLowerCase();
 }
 
 /**
@@ -80,7 +85,7 @@ export function documentLocales(): string[] {
 
   const locales: string[] = [];
   for (const candidate of candidates) {
-    const locale = candidate?.trim().replace("-", "_");
+    const locale = candidate ? normalizeLocale(candidate) : undefined;
     if (locale && !locales.includes(locale)) locales.push(locale);
   }
   return locales;
