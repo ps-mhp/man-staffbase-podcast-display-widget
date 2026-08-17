@@ -59,10 +59,92 @@ describe("fetchEpisodesPage", () => {
     );
   });
 
+  it("passes an AbortSignal through to fetch", async () => {
+    const controller = new AbortController();
+    const fetchMock = mockFetch(async () => new Response(JSON.stringify({ data: [] }), { status: 200 }));
+
+    await fetchEpisodesPage(PODCAST_ID, undefined, controller.signal);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      `/api/ai-podcast/${PODCAST_ID}/episode-audio?limit=20`,
+      expect.objectContaining({ signal: controller.signal }),
+    );
+  });
+
   it("throws on an HTTP error", async () => {
     mockFetch(async () => new Response("", { status: 404 }));
 
     await expect(fetchEpisodesPage(PODCAST_ID)).rejects.toThrow(/404/);
+  });
+
+  it("throws when the response has no data array", async () => {
+    mockFetch(async () => new Response(JSON.stringify({ nextCursor: "page2" }), { status: 200 }));
+
+    await expect(fetchEpisodesPage(PODCAST_ID)).rejects.toThrow(/Malformed response/);
+  });
+
+  it("throws when an episode is missing a required field", async () => {
+    mockFetch(
+      async () =>
+        new Response(
+          JSON.stringify({
+            data: [
+              {
+                episodeId: "a",
+                episodeTitle: "Episode a",
+                publishedAt: "2026-07-30T06:42:10.566886Z",
+                thumbnailUrl: "https://www.onetruck.man/thumb.jpg",
+              },
+            ],
+          }),
+          { status: 200 },
+        ),
+    );
+
+    await expect(fetchEpisodesPage(PODCAST_ID)).rejects.toThrow(/Malformed response/);
+  });
+
+  it("drops malformed optional fields instead of failing the whole response", async () => {
+    mockFetch(
+      async () =>
+        new Response(
+          JSON.stringify({
+            data: [
+              {
+                ...episode("a"),
+                titleTranslations: "de_DE",
+              },
+            ],
+            nextCursor: 17,
+          }),
+          { status: 200 },
+        ),
+    );
+
+    await expect(fetchEpisodesPage(PODCAST_ID)).resolves.toEqual({
+      data: [{ ...episode("a"), titleTranslations: undefined }],
+    });
+  });
+
+  it("treats array titleTranslations as absent", async () => {
+    mockFetch(
+      async () =>
+        new Response(
+          JSON.stringify({
+            data: [
+              {
+                ...episode("a"),
+                titleTranslations: ["de_DE"],
+              },
+            ],
+          }),
+          { status: 200 },
+        ),
+    );
+
+    await expect(fetchEpisodesPage(PODCAST_ID)).resolves.toEqual({
+      data: [{ ...episode("a"), titleTranslations: undefined }],
+    });
   });
 });
 
@@ -112,5 +194,18 @@ describe("fetchEpisodeById", () => {
 
     await expect(fetchEpisodeById(PODCAST_ID, "missing")).rejects.toThrow(/nicht gefunden/);
     expect(fetchMock).toHaveBeenCalledTimes(10);
+  });
+
+  it("stops paging when the caller aborts the search", async () => {
+    const controller = new AbortController();
+    const fetchMock = mockFetch(async () => {
+      controller.abort();
+      return new Response(JSON.stringify({ data: [episode("a")], nextCursor: "more" }), { status: 200 });
+    });
+
+    await expect(fetchEpisodeById(PODCAST_ID, "missing", controller.signal)).rejects.toMatchObject({
+      name: "AbortError",
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

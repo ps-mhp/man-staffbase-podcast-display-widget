@@ -13,7 +13,7 @@
 
 import React from "react";
 
-import { fetchLatestEpisode, fetchEpisodeById } from "./podcast-client";
+import { fetchLatestEpisode, fetchEpisodeById, PodcastDomainError } from "./podcast-client";
 import { Episode, documentLocales, pickLocalizedTitle } from "./podcast-content";
 import { ensureStyles } from "./styles";
 
@@ -22,6 +22,7 @@ const MISSING_PODCAST_ID =
 const MISSING_EPISODE_ID =
   'Modus "Bestimmte Episode" ausgewählt, aber keine Episode-ID konfiguriert. ' +
   "Bitte die ID der Episode in den Widget-Einstellungen eintragen.";
+const LOAD_ERROR = "Podcast konnte nicht geladen werden.";
 
 /** Display mode, mirrored from the `display-mode` configuration field. */
 export type DisplayMode = "latest" | "specific";
@@ -75,10 +76,13 @@ export function PodcastView({
     // one; the flag keeps it from overwriting the newer state after the
     // component moved on.
     let current = true;
+    const controller = new AbortController();
     setState({ status: "loading" });
 
     const request =
-      displayMode === "specific" ? fetchEpisodeById(podcastId, episodeId as string) : fetchLatestEpisode(podcastId);
+      displayMode === "specific"
+        ? fetchEpisodeById(podcastId, episodeId as string, controller.signal)
+        : fetchLatestEpisode(podcastId, controller.signal);
 
     request
       .then((episode) => {
@@ -93,12 +97,15 @@ export function PodcastView({
       })
       .catch((error: unknown) => {
         if (!current) return;
-        const reason = error instanceof Error ? error.message : String(error);
-        setState({ status: "error", message: `Podcast konnte nicht geladen werden: ${reason}` });
+        setState({
+          status: "error",
+          message: error instanceof PodcastDomainError ? error.message : LOAD_ERROR,
+        });
       });
 
     return () => {
       current = false;
+      controller.abort();
     };
   }, [podcastId, displayMode, episodeId]);
 

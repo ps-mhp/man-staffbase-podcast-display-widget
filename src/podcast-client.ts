@@ -14,6 +14,59 @@
 import { Episode, EpisodeAudioResponse } from "./podcast-content";
 
 const PAGE_SIZE = 20;
+export class PodcastDomainError extends Error {}
+const MALFORMED_RESPONSE = "Malformed response";
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function readTitleTranslations(value: unknown): Record<string, string> | undefined {
+  if (!isObject(value) || Array.isArray(value)) return undefined;
+  const entries = Object.entries(value);
+  return entries.every(([, translation]) => typeof translation === "string")
+    ? Object.fromEntries(entries) as Record<string, string>
+    : undefined;
+}
+
+function readEpisode(value: unknown): Episode {
+  if (!isObject(value)) throw new Error(MALFORMED_RESPONSE);
+
+  const { episodeId, episodeTitle, publishedAt, thumbnailUrl, url } = value;
+  if (
+    typeof episodeId !== "string" ||
+    typeof episodeTitle !== "string" ||
+    typeof publishedAt !== "string" ||
+    typeof thumbnailUrl !== "string" ||
+    typeof url !== "string"
+  ) {
+    throw new Error(MALFORMED_RESPONSE);
+  }
+
+  return {
+    episodeId,
+    episodeTitle,
+    publishedAt,
+    thumbnailUrl,
+    url,
+    titleTranslations: readTitleTranslations(value.titleTranslations),
+  };
+}
+
+function readEpisodesResponse(value: unknown): EpisodeAudioResponse {
+  if (!isObject(value) || !Array.isArray(value.data)) throw new Error(MALFORMED_RESPONSE);
+
+  return {
+    data: value.data.map(readEpisode),
+    nextCursor: typeof value.nextCursor === "string" ? value.nextCursor : undefined,
+  };
+}
+
+function abortError(): Error {
+  return typeof DOMException === "function"
+    ? new DOMException("The operation was aborted.", "AbortError")
+    : Object.assign(new Error("The operation was aborted."), { name: "AbortError" });
+}
 
 /**
  * Looking for one specific episode means paging through the list — there is
@@ -31,23 +84,28 @@ const MAX_PAGES = 10;
  * applies exactly the permissions it would apply if the user opened the
  * podcast directly.
  */
-export async function fetchEpisodesPage(podcastId: string, cursor?: string): Promise<EpisodeAudioResponse> {
+export async function fetchEpisodesPage(
+  podcastId: string,
+  cursor?: string,
+  signal?: AbortSignal,
+): Promise<EpisodeAudioResponse> {
   const params = new URLSearchParams({ limit: String(PAGE_SIZE) });
   if (cursor) params.set("cursor", cursor);
 
   const response = await fetch(`/api/ai-podcast/${podcastId}/episode-audio?${params.toString()}`, {
     credentials: "same-origin",
     headers: { Accept: "application/json" },
+    signal,
   });
 
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return (await response.json()) as EpisodeAudioResponse;
+  return readEpisodesResponse(await response.json());
 }
 
 /** The newest episode of a podcast — the first entry of its first page. */
-export async function fetchLatestEpisode(podcastId: string): Promise<Episode> {
-  const page = await fetchEpisodesPage(podcastId);
-  if (page.data.length === 0) throw new Error("Der Podcast hat noch keine Episoden.");
+export async function fetchLatestEpisode(podcastId: string, signal?: AbortSignal): Promise<Episode> {
+  const page = await fetchEpisodesPage(podcastId, undefined, signal);
+  if (page.data.length === 0) throw new PodcastDomainError("Der Podcast hat noch keine Episoden.");
   return page.data[0];
 }
 
@@ -56,11 +114,13 @@ export async function fetchLatestEpisode(podcastId: string): Promise<Episode> {
  *
  * @throws if the episode is not found within {@link MAX_PAGES} pages.
  */
-export async function fetchEpisodeById(podcastId: string, episodeId: string): Promise<Episode> {
+export async function fetchEpisodeById(podcastId: string, episodeId: string, signal?: AbortSignal): Promise<Episode> {
   let cursor: string | undefined;
 
   for (let page = 0; page < MAX_PAGES; page++) {
-    const result = await fetchEpisodesPage(podcastId, cursor);
+    if (signal?.aborted) throw abortError();
+
+    const result = await fetchEpisodesPage(podcastId, cursor, signal);
     const found = result.data.find((episode) => episode.episodeId === episodeId);
     if (found) return found;
 
@@ -68,5 +128,5 @@ export async function fetchEpisodeById(podcastId: string, episodeId: string): Pr
     cursor = result.nextCursor;
   }
 
-  throw new Error("Episode nicht gefunden.");
+  throw new PodcastDomainError("Episode nicht gefunden.");
 }

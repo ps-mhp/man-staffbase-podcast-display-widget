@@ -32,6 +32,12 @@ function mockFetch(implementation: () => Promise<unknown>): jest.SpyInstance {
   return jest.spyOn(globalThis, "fetch").mockImplementation(implementation as never);
 }
 
+function abortError(): Error {
+  return typeof DOMException === "function"
+    ? new DOMException("The operation was aborted.", "AbortError")
+    : Object.assign(new Error("The operation was aborted."), { name: "AbortError" });
+}
+
 describe("PodcastView", () => {
   beforeEach(() => {
     document.documentElement.setAttribute("lang", "de-DE");
@@ -88,11 +94,74 @@ describe("PodcastView", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("reports an unreachable podcast instead of staying blank", async () => {
+  it("reports an unreachable podcast with a German fallback message", async () => {
     mockFetch(async () => new Response("", { status: 404 }));
 
     render(<PodcastView podcastId={PODCAST_ID} displayMode="latest" episodeId={null} />);
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(/404/);
+    expect(await screen.findByRole("alert")).toHaveTextContent("Podcast konnte nicht geladen werden.");
+  });
+
+  it("shows a fixed German message for HTTP failures", async () => {
+    mockFetch(async () => new Response("", { status: 500 }));
+
+    render(<PodcastView podcastId={PODCAST_ID} displayMode="latest" episodeId={null} />);
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Podcast konnte nicht geladen werden.");
+    expect(alert).not.toHaveTextContent("HTTP 500");
+  });
+
+  it("shows a fixed German message for network failures", async () => {
+    mockFetch(async () => Promise.reject(new TypeError("Failed to fetch")));
+
+    render(<PodcastView podcastId={PODCAST_ID} displayMode="latest" episodeId={null} />);
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Podcast konnte nicht geladen werden.");
+    expect(alert).not.toHaveTextContent("Failed to fetch");
+  });
+
+  it("shows the empty-podcast domain error verbatim", async () => {
+    mockFetch(async () => new Response(JSON.stringify({ data: [] }), { status: 200 }));
+
+    render(<PodcastView podcastId={PODCAST_ID} displayMode="latest" episodeId={null} />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Der Podcast hat noch keine Episoden.");
+  });
+
+  it("shows the missing-episode domain error verbatim", async () => {
+    mockFetch(async () => new Response(JSON.stringify({ data: [] }), { status: 200 }));
+
+    render(<PodcastView podcastId={PODCAST_ID} displayMode="specific" episodeId={EPISODE_ID} />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Episode nicht gefunden.");
+  });
+
+  it("aborts stale requests on prop change without surfacing an abort error", async () => {
+    const abortSpy = jest.spyOn(AbortController.prototype, "abort");
+    const fetchMock = jest.spyOn(globalThis, "fetch").mockImplementation(((_url: string, init?: RequestInit) => {
+      const signal = init?.signal;
+      return new Promise((resolve, reject) => {
+        signal?.addEventListener("abort", () => reject(abortError()), { once: true });
+        if (typeof _url === "string" && _url.includes("podcast-two")) {
+          resolve(new Response(JSON.stringify({ data: [episode] }), { status: 200 }));
+        }
+      });
+    }) as never);
+
+    const { rerender } = render(<PodcastView podcastId="podcast-one" displayMode="latest" episodeId={null} />);
+    expect(await screen.findByText(/wird geladen/i)).toBeInTheDocument();
+
+    rerender(<PodcastView podcastId="podcast-two" displayMode="latest" episodeId={null} />);
+
+    expect(abortSpy).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText("Zündung Podcast II")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("/api/ai-podcast/podcast-one/episode-audio"),
+      expect.objectContaining({ signal: expect.anything() }),
+    );
   });
 });
