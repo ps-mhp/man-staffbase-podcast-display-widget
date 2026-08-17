@@ -56,9 +56,14 @@ function readEpisode(value: unknown): Episode {
 function readEpisodesResponse(value: unknown): EpisodeAudioResponse {
   if (!isObject(value) || !Array.isArray(value.data)) throw new Error(MALFORMED_RESPONSE);
 
+  const { nextCursor } = value;
+  if (nextCursor !== undefined && nextCursor !== null && typeof nextCursor !== "string") {
+    throw new Error(MALFORMED_RESPONSE);
+  }
+
   return {
     data: value.data.map(readEpisode),
-    nextCursor: typeof value.nextCursor === "string" ? value.nextCursor : undefined,
+    nextCursor: typeof nextCursor === "string" ? nextCursor : undefined,
   };
 }
 

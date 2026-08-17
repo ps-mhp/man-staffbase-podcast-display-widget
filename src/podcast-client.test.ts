@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-import { fetchEpisodesPage, fetchLatestEpisode, fetchEpisodeById } from "./podcast-client";
+import { fetchEpisodesPage, fetchLatestEpisode, fetchEpisodeById, PodcastDomainError } from "./podcast-client";
 import { Episode } from "./podcast-content";
 
 const PODCAST_ID = "6a6ae5e1d64a8c30f478a339";
@@ -104,26 +104,19 @@ describe("fetchEpisodesPage", () => {
     await expect(fetchEpisodesPage(PODCAST_ID)).rejects.toThrow(/Malformed response/);
   });
 
-  it("drops malformed optional fields instead of failing the whole response", async () => {
+  it("throws when nextCursor has the wrong type", async () => {
     mockFetch(
       async () =>
         new Response(
           JSON.stringify({
-            data: [
-              {
-                ...episode("a"),
-                titleTranslations: "de_DE",
-              },
-            ],
+            data: [episode("a")],
             nextCursor: 17,
           }),
           { status: 200 },
         ),
     );
 
-    await expect(fetchEpisodesPage(PODCAST_ID)).resolves.toEqual({
-      data: [{ ...episode("a"), titleTranslations: undefined }],
-    });
+    await expect(fetchEpisodesPage(PODCAST_ID)).rejects.toThrow(/Malformed response/);
   });
 
   it("treats array titleTranslations as absent", async () => {
@@ -194,6 +187,19 @@ describe("fetchEpisodeById", () => {
 
     await expect(fetchEpisodeById(PODCAST_ID, "missing")).rejects.toThrow(/nicht gefunden/);
     expect(fetchMock).toHaveBeenCalledTimes(10);
+  });
+
+  it("surfaces a malformed nextCursor as a malformed response", async () => {
+    mockFetch(async () => new Response(JSON.stringify({ data: [episode("a")], nextCursor: 17 }), { status: 200 }));
+
+    try {
+      await fetchEpisodeById(PODCAST_ID, "missing");
+      throw new Error("Expected fetchEpisodeById to throw");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect(error).not.toBeInstanceOf(PodcastDomainError);
+      expect(error).toHaveProperty("message", "Malformed response");
+    }
   });
 
   it("stops paging when the caller aborts the search", async () => {
