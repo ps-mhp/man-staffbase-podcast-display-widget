@@ -61,7 +61,6 @@ export const PODCAST_DISPLAY_CSS = `
 }
 
 .podcast-display__error {
-  color: #b3261e;
   opacity: 1;
 }
 `;
