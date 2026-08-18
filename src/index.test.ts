@@ -11,7 +11,13 @@
  * limitations under the License.
  */
 
-import { PODCAST_ID_ATTRIBUTE, DISPLAY_MODE_ATTRIBUTE, EPISODE_ID_ATTRIBUTE } from "./index";
+import {
+  PODCAST_ID_ATTRIBUTE,
+  DISPLAY_MODE_ATTRIBUTE,
+  EPISODE_ID_ATTRIBUTE,
+  stopPodcastPickerInjector,
+  stopEpisodePickerInjector,
+} from "./index";
 import { configurationSchema, uiSchema } from "./configuration-schema";
 
 describe("widget attributes", () => {
@@ -31,5 +37,16 @@ describe("widget attributes", () => {
     expect(Object.keys(uiSchema).sort()).toEqual(
       [PODCAST_ID_ATTRIBUTE, EPISODE_ID_ATTRIBUTE].sort(),
     );
+  });
+});
+
+describe("entity pickers", () => {
+  it("start watching for their configuration fields from module load on", () => {
+    // Exported only so a test can dispose of the observer between files;
+    // production code never calls this.
+    expect(typeof stopPodcastPickerInjector).toBe("function");
+    expect(typeof stopEpisodePickerInjector).toBe("function");
+    stopPodcastPickerInjector();
+    stopEpisodePickerInjector();
   });
 });

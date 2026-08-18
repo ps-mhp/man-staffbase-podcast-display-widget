@@ -20,7 +20,13 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 
 import { BlockFactory, BlockDefinition, ExternalBlockDefinition, BaseBlock } from "widget-sdk";
+import { configFieldSelector } from "@shared/config-field-injector";
+import { fetchEntityCatalog } from "@shared/entity-picker/entity-catalog";
+import { startEntityPickerInjector } from "@shared/entity-picker/entity-picker-injector";
+
 import { configurationSchema, uiSchema } from "./configuration-schema";
+import { createEpisodeCatalogSource } from "./episode-catalog";
+import { podcastCatalogSource } from "./podcast-catalog";
 import { readPodcastId, readEpisodeId } from "./podcast-content";
 import { DisplayMode, PodcastView } from "./podcast-view";
 import icon from "../resources/podcast-display-widget.svg";
@@ -40,6 +46,58 @@ export const EPISODE_ID_ATTRIBUTE = "episode-id";
 
 /** Attributes handled by the widget; mirrored in the configuration schema. */
 const widgetAttributes: string[] = [PODCAST_ID_ATTRIBUTE, DISPLAY_MODE_ATTRIBUTE, EPISODE_ID_ATTRIBUTE];
+
+/** Copy for the dropdown next to the `podcast-id` field. */
+const PODCAST_PICKER_LABELS = {
+  placeholder: "Podcast auswählen …",
+  manualOption: "Andere ID eingeben …",
+  unavailableNotice:
+    "Die Liste der Podcasts konnte nicht geladen werden. Bitte die Installations-ID eintragen.",
+};
+
+/** Copy for the dropdown next to the `episode-id` field. */
+const EPISODE_PICKER_LABELS = {
+  placeholder: "Episode auswählen …",
+  manualOption: "Andere ID eingeben …",
+  unavailableNotice:
+    "Die Liste der Episoden konnte nicht geladen werden (oder es ist noch kein Podcast ausgewählt). Bitte die Episode-ID eintragen.",
+};
+
+/**
+ * The `podcast-id` field's live value, read straight out of the dialog's DOM.
+ *
+ * The episode catalog depends on it but is not itself rendered from the same
+ * state — there is no shared component tree between the two fields' pickers
+ * — so this is how the episode picker learns which podcast is currently
+ * selected, both on first load and every time `watchFields` re-triggers it.
+ */
+function readSelectedPodcastId(): string | null {
+  const field = document.querySelector<HTMLInputElement>(configFieldSelector(PODCAST_ID_ATTRIBUTE));
+  return field ? readPodcastId(field.value) : null;
+}
+
+/**
+ * Watches for the configuration dialog from module load on.
+ *
+ * See the survey widget's `stopSurveyPickerInjector` for why this runs
+ * unconditionally at module scope rather than from a render.
+ *
+ * Exported only so tests can dispose of the observer on teardown; production
+ * code never calls this.
+ */
+export const stopPodcastPickerInjector = startEntityPickerInjector({
+  fieldKey: PODCAST_ID_ATTRIBUTE,
+  fetchOptions: () => fetchEntityCatalog(podcastCatalogSource),
+  labels: PODCAST_PICKER_LABELS,
+});
+
+/** Same as `stopPodcastPickerInjector`, for the `episode-id` field. */
+export const stopEpisodePickerInjector = startEntityPickerInjector({
+  fieldKey: EPISODE_ID_ATTRIBUTE,
+  fetchOptions: () => fetchEntityCatalog(createEpisodeCatalogSource(readSelectedPodcastId)),
+  labels: EPISODE_PICKER_LABELS,
+  watchFields: [PODCAST_ID_ATTRIBUTE],
+});
 
 /** Anything other than the literal `"specific"` means "latest" — including an unset or stale value. */
 function readDisplayMode(raw: unknown): DisplayMode {
