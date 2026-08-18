@@ -15,7 +15,8 @@ import React from "react";
 
 import { fetchLatestEpisode, fetchEpisodeById, PodcastDomainError } from "./podcast-client";
 import { Episode, documentLocales, pickLocalizedTitle } from "./podcast-content";
-import { ensureStyles } from "./styles";
+import { PlayerSize, PodcastPlayer } from "./podcast-player";
+import { ensureStyles, ROOT_ID } from "./styles";
 
 const MISSING_PODCAST_ID =
   "Keine Podcast-ID konfiguriert. Bitte die ID des Podcasts in den Widget-Einstellungen eintragen.";
@@ -53,10 +54,12 @@ export function PodcastView({
   podcastId,
   displayMode,
   episodeId,
+  playerSize = "large",
 }: {
   podcastId: string | null;
   displayMode: DisplayMode;
   episodeId: string | null;
+  playerSize?: PlayerSize;
 }): React.JSX.Element {
   const [state, setState] = React.useState<State>({ status: "loading" });
 
@@ -111,7 +114,7 @@ export function PodcastView({
 
   if (state.status === "loading") {
     return (
-      <div className="podcast-display" data-testid="podcast-display">
+      <div id={ROOT_ID} className="podcast-display" data-testid="podcast-display">
         <p className="podcast-display__status">Episode wird geladen …</p>
       </div>
     );
@@ -119,7 +122,7 @@ export function PodcastView({
 
   if (state.status === "error") {
     return (
-      <div className="podcast-display" data-testid="podcast-display">
+      <div id={ROOT_ID} className="podcast-display" data-testid="podcast-display">
         <p className="podcast-display__error" role="alert">
           {state.message}
         </p>
@@ -129,11 +132,8 @@ export function PodcastView({
 
   const { episode, title, date } = state;
   return (
-    <article className="podcast-display" data-testid="podcast-display">
-      <img className="podcast-display__thumbnail" src={episode.thumbnailUrl} alt={title} />
-      <p className="podcast-display__title">{title}</p>
-      <p className="podcast-display__date">{date}</p>
-      <audio className="podcast-display__audio" controls src={episode.url} />
+    <article id={ROOT_ID} className="podcast-display" data-testid="podcast-display">
+      <PodcastPlayer episode={episode} title={title} date={date} size={playerSize} />
     </article>
   );
 }

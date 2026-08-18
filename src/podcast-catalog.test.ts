@@ -31,13 +31,22 @@ describe("podcastCatalogSource.fetchList", () => {
     expect(init.credentials).toBe("same-origin");
   });
 
-  it("returns the raw entries as-is for toOption to map", async () => {
+  it("returns the raw entries as-is for toOption to map (plus the current Space, resolved once per list)", async () => {
     respondWith({
       entries: [{ installationId: "aaaaaaaaaaaaaaaaaaaaaaaa", latestEpisodePublishedAt: "2026-01-01T00:00:00Z", scope: "space" }],
     });
 
+    // jsdom's default location has no page id in its path, so the current
+    // Space cannot be resolved here — this test only pins down that the
+    // field is *attached*, not what value it resolves to on a real editor
+    // page (see podcast-space-context.test.ts for that).
     await expect(podcastCatalogSource.fetchList()).resolves.toEqual([
-      { installationId: "aaaaaaaaaaaaaaaaaaaaaaaa", latestEpisodePublishedAt: "2026-01-01T00:00:00Z", scope: "space" },
+      {
+        installationId: "aaaaaaaaaaaaaaaaaaaaaaaa",
+        latestEpisodePublishedAt: "2026-01-01T00:00:00Z",
+        scope: "space",
+        currentSpaceId: null,
+      },
     ]);
   });
 
@@ -97,5 +106,53 @@ describe("podcastCatalogSource.toOption", () => {
     await expect(
       podcastCatalogSource.toOption({ installationId: "dddddddddddddddddddddddd" } as never),
     ).resolves.toEqual({ id: "dddddddddddddddddddddddd", title: "dddddddddddddddddddddddd" });
+  });
+
+  it("disables a space-scoped podcast whose Space differs from the current page's", async () => {
+    respondWith({ config: { localization: { en_US: { title: "Elsewhere" } } }, spaceID: "space-b" });
+
+    await expect(
+      podcastCatalogSource.toOption({
+        installationId: "eeeeeeeeeeeeeeeeeeeeeeee",
+        scope: "space",
+        currentSpaceId: "space-a",
+      } as never),
+    ).resolves.toEqual({ id: "eeeeeeeeeeeeeeeeeeeeeeee", title: "Elsewhere", disabled: true });
+  });
+
+  it("leaves a space-scoped podcast enabled when its Space matches the current page's", async () => {
+    respondWith({ config: { localization: { en_US: { title: "Here" } } }, spaceID: "space-a" });
+
+    await expect(
+      podcastCatalogSource.toOption({
+        installationId: "ffffffffffffffffffffffff",
+        scope: "space",
+        currentSpaceId: "space-a",
+      } as never),
+    ).resolves.toEqual({ id: "ffffffffffffffffffffffff", title: "Here" });
+  });
+
+  it("leaves a global podcast enabled even outside the current page's Space", async () => {
+    respondWith({ config: { localization: { en_US: { title: "Everywhere" } } }, spaceID: "space-b" });
+
+    await expect(
+      podcastCatalogSource.toOption({
+        installationId: "1111111111111111111111aa",
+        scope: "global",
+        currentSpaceId: "space-a",
+      } as never),
+    ).resolves.toEqual({ id: "1111111111111111111111aa", title: "Everywhere" });
+  });
+
+  it("leaves a space-scoped podcast enabled when the current Space could not be determined", async () => {
+    respondWith({ config: { localization: { en_US: { title: "Unknown context" } } }, spaceID: "space-b" });
+
+    await expect(
+      podcastCatalogSource.toOption({
+        installationId: "2222222222222222222222bb",
+        scope: "space",
+        currentSpaceId: null,
+      } as never),
+    ).resolves.toEqual({ id: "2222222222222222222222bb", title: "Unknown context" });
   });
 });

@@ -15,23 +15,23 @@ import { EntityCatalogSource, EntityOption } from "@shared/entity-picker/entity-
 
 // The *local* pickLocalizedTitle, not `@shared/entity-picker/localized-title`:
 // this one takes `(translations, episodeTitle, locales)` and always falls
-// back to `episodeTitle`, matching the shape the episode-audio and episodes
-// endpoints both send. The shared one takes a single `localization` object
-// and is for installation-config-shaped data (see podcast-catalog.ts).
-import { documentLocales, pickLocalizedTitle } from "./podcast-content";
-
-interface RawEpisode {
-  id?: unknown;
-  titleTranslations?: Record<string, string>;
-}
-
-interface EpisodesResponse {
-  data?: RawEpisode[];
-}
+// back to `episodeTitle`, matching the shape the episode-audio endpoint
+// sends. The shared one takes a single `localization` object and is for
+// installation-config-shaped data (see podcast-catalog.ts).
+import { documentLocales, pickLocalizedTitle, Episode } from "./podcast-content";
+import { fetchEpisodesPage } from "./podcast-client";
 
 /**
  * How the episode picker gets its list for whichever podcast is currently
  * selected.
+ *
+ * Fetches the *same* endpoint and reads the *same* `episodeId` field that
+ * `fetchEpisodeById` later searches for — an earlier version of this source
+ * called a different, unverified `episodes` endpoint and offered its `id`
+ * field instead, so every episode picked through the dialog was one
+ * `fetchEpisodeById` could never find: two different id spaces that only
+ * looked alike. `episode-audio` is the one endpoint confirmed to exist (see
+ * `podcast-client.ts` and the widget's README).
  *
  * Takes a `getPodcastId` callback rather than a fixed id because the episode
  * list depends on the widget's `podcast-id` field, which can change after
@@ -40,26 +40,22 @@ interface EpisodesResponse {
  */
 export function createEpisodeCatalogSource(
   getPodcastId: () => string | null,
-): EntityCatalogSource<RawEpisode> {
+): EntityCatalogSource<Episode> {
   return {
-    async fetchList(): Promise<RawEpisode[]> {
+    async fetchList(): Promise<Episode[]> {
       const podcastId = getPodcastId();
       if (!podcastId) return [];
 
-      const response = await fetch(`/api/ai-podcast/${podcastId}/episodes?limit=10`, {
-        credentials: "same-origin",
-        headers: { Accept: "application/json" },
-      });
-      if (!response.ok) return [];
-
-      const body = (await response.json()) as EpisodesResponse;
-      return body.data ?? [];
+      const page = await fetchEpisodesPage(podcastId);
+      return page.data;
     },
 
-    toOption(entry: RawEpisode): EntityOption | null {
-      const id = entry?.id;
-      if (typeof id !== "string" || id === "") return null;
-      return { id, title: pickLocalizedTitle(entry.titleTranslations, id, documentLocales()) };
+    toOption(episode: Episode): EntityOption {
+      return {
+        id: episode.episodeId,
+        title: pickLocalizedTitle(episode.titleTranslations, episode.episodeTitle, documentLocales()),
+      };
     },
   };
 }
+

@@ -20,6 +20,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 
 import { BlockFactory, BlockDefinition, ExternalBlockDefinition, BaseBlock } from "widget-sdk";
+import { startConditionalFieldVisibility } from "@shared/conditional-field-visibility";
 import { configFieldSelector } from "@shared/config-field-injector";
 import { fetchEntityCatalog } from "@shared/entity-picker/entity-catalog";
 import { startEntityPickerInjector } from "@shared/entity-picker/entity-picker-injector";
@@ -27,7 +28,9 @@ import { startEntityPickerInjector } from "@shared/entity-picker/entity-picker-i
 import { configurationSchema, uiSchema } from "./configuration-schema";
 import { createEpisodeCatalogSource } from "./episode-catalog";
 import { podcastCatalogSource } from "./podcast-catalog";
+import { PodcastAccessHelp } from "./podcast-access-help";
 import { readPodcastId, readEpisodeId } from "./podcast-content";
+import { PlayerSize } from "./podcast-player";
 import { DisplayMode, PodcastView } from "./podcast-view";
 import icon from "../resources/podcast-display-widget.svg";
 import pkg from "../package.json";
@@ -43,9 +46,15 @@ import pkg from "../package.json";
 export const PODCAST_ID_ATTRIBUTE = "podcast-id";
 export const DISPLAY_MODE_ATTRIBUTE = "display-mode";
 export const EPISODE_ID_ATTRIBUTE = "episode-id";
+export const PLAYER_SIZE_ATTRIBUTE = "player-size";
 
 /** Attributes handled by the widget; mirrored in the configuration schema. */
-const widgetAttributes: string[] = [PODCAST_ID_ATTRIBUTE, DISPLAY_MODE_ATTRIBUTE, EPISODE_ID_ATTRIBUTE];
+const widgetAttributes: string[] = [
+  PODCAST_ID_ATTRIBUTE,
+  DISPLAY_MODE_ATTRIBUTE,
+  EPISODE_ID_ATTRIBUTE,
+  PLAYER_SIZE_ATTRIBUTE,
+];
 
 /** Copy for the dropdown next to the `podcast-id` field. */
 const PODCAST_PICKER_LABELS = {
@@ -89,6 +98,7 @@ export const stopPodcastPickerInjector = startEntityPickerInjector({
   fieldKey: PODCAST_ID_ATTRIBUTE,
   fetchOptions: () => fetchEntityCatalog(podcastCatalogSource),
   labels: PODCAST_PICKER_LABELS,
+  helpLink: <PodcastAccessHelp />,
 });
 
 /** Same as `stopPodcastPickerInjector`, for the `episode-id` field. */
@@ -99,9 +109,28 @@ export const stopEpisodePickerInjector = startEntityPickerInjector({
   watchFields: [PODCAST_ID_ATTRIBUTE],
 });
 
+/**
+ * The `episode-id` field only means anything in "specific episode" mode; in
+ * "latest episode" mode it is dead weight in the dialog — an empty box next
+ * to a picker that, per `EPISODE_PICKER_LABELS.unavailableNotice`, may well
+ * also be showing its own "could not load" text with nothing to load it for.
+ * Hidden as a whole row (see `conditional-field-visibility.ts`), not just the
+ * raw input, so its label and help text disappear with it.
+ */
+export const stopEpisodeVisibilityToggle = startConditionalFieldVisibility({
+  controllingFieldKey: DISPLAY_MODE_ATTRIBUTE,
+  hiddenFieldKey: EPISODE_ID_ATTRIBUTE,
+  shouldHide: (displayMode) => displayMode !== "specific",
+});
+
 /** Anything other than the literal `"specific"` means "latest" — including an unset or stale value. */
 function readDisplayMode(raw: unknown): DisplayMode {
   return raw === "specific" ? "specific" : "latest";
+}
+
+/** Anything other than the literal `"small"` means "large" — including an unset or stale value, and the schema's own default. */
+function readPlayerSize(raw: unknown): PlayerSize {
+  return raw === "small" ? "small" : "large";
 }
 
 const factory: BlockFactory = (BaseBlockClass, _widgetApi) => {
@@ -113,10 +142,13 @@ const factory: BlockFactory = (BaseBlockClass, _widgetApi) => {
       const podcastId = readPodcastId(attrs[PODCAST_ID_ATTRIBUTE]);
       const displayMode = readDisplayMode(attrs[DISPLAY_MODE_ATTRIBUTE]);
       const episodeId = readEpisodeId(attrs[EPISODE_ID_ATTRIBUTE]);
+      const playerSize = readPlayerSize(attrs[PLAYER_SIZE_ATTRIBUTE]);
 
       // The SDK is assumed to pass the same container for the life of the block.
       this._root ??= ReactDOM.createRoot(container);
-      this._root.render(<PodcastView podcastId={podcastId} displayMode={displayMode} episodeId={episodeId} />);
+      this._root.render(
+        <PodcastView podcastId={podcastId} displayMode={displayMode} episodeId={episodeId} playerSize={playerSize} />,
+      );
     }
 
     public unmountBlock(_container: HTMLElement): void {

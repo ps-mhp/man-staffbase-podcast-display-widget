@@ -11,59 +11,40 @@
  * limitations under the License.
  */
 
+import styles from "./styles.scss";
+
 /** Id of the single style element, which is also how it is recognised again. */
 export const STYLE_ELEMENT_ID = "podcast-display-widget-styles";
 
 /**
- * The widget's stylesheet.
+ * Id every rendered widget root carries (see `PodcastView`), so every
+ * selector in `styles.scss` can be written as `#${ROOT_ID} .podcast-display__x`.
  *
- * Colours and fonts are inherited on purpose, same reasoning as in the post
- * widget: the block sits inside a page that already has a design. Only
- * spacing and the containment of the thumbnail and player are stated here.
+ * A host page frequently loads its own, more specific or later-loaded CSS
+ * (e.g. `button` resets, a design-system's own `.button` class) that would
+ * otherwise win over a plain class selector by load order or specificity —
+ * exactly what happened before this was added. An id compound selector
+ * outweighs any number of chained classes, short of the host also using an
+ * id (which none of ours has reason to collide with) or `!important`.
+ *
+ * If the same widget instance renders more than once on one page, this id
+ * is technically duplicated — invalid HTML, but harmless here: nothing
+ * looks the element up by this id (`ensureStyles`'s lookup uses
+ * `STYLE_ELEMENT_ID`, a different, always-unique id on the `<style>`
+ * element itself), and every browser still applies an id *selector* to
+ * every element carrying that id, duplicated or not.
  */
-export const PODCAST_DISPLAY_CSS = `
-.podcast-display {
-  box-sizing: border-box;
-  display: block;
-  line-height: 1.55;
-  min-width: 0;
-}
+export const ROOT_ID = "podcast-display-widget-root";
 
-.podcast-display__thumbnail {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  border-radius: 0.5em;
-  margin: 0 0 0.75em;
-}
-
-.podcast-display__title {
-  font-size: 1.4em;
-  font-weight: 700;
-  line-height: 1.25;
-  margin: 0 0 0.25em;
-}
-
-.podcast-display__date {
-  margin: 0 0 0.75em;
-  opacity: 0.75;
-}
-
-.podcast-display__audio {
-  display: block;
-  width: 100%;
-}
-
-.podcast-display__status,
-.podcast-display__error {
-  margin: 0;
-  opacity: 0.75;
-}
-
-.podcast-display__error {
-  opacity: 1;
-}
-`;
+/**
+ * The widget's stylesheet, compiled from `styles.scss`.
+ *
+ * MAN colours, radius and type come from the shared `@shared/stylings/
+ * man-tokens` module (`var(--man-x, <fallback>)`), the same fallback
+ * approach `content-tabs` uses: the host page is not guaranteed to have the
+ * MAN theme loaded, so every value still has to work on its own.
+ */
+export const PODCAST_DISPLAY_CSS = styles;
 
 /**
  * Puts the stylesheet into the document, once.

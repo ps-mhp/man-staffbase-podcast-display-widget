@@ -15,8 +15,10 @@ import {
   PODCAST_ID_ATTRIBUTE,
   DISPLAY_MODE_ATTRIBUTE,
   EPISODE_ID_ATTRIBUTE,
+  PLAYER_SIZE_ATTRIBUTE,
   stopPodcastPickerInjector,
   stopEpisodePickerInjector,
+  stopEpisodeVisibilityToggle,
 } from "./index";
 import { configurationSchema, uiSchema } from "./configuration-schema";
 
@@ -26,16 +28,16 @@ describe("widget attributes", () => {
     // verbatim and reads it back under the declared attribute. Any
     // difference — even only in case — puts the value where nothing looks.
     expect(Object.keys(configurationSchema.properties!).sort()).toEqual(
-      [PODCAST_ID_ATTRIBUTE, DISPLAY_MODE_ATTRIBUTE, EPISODE_ID_ATTRIBUTE].sort(),
+      [PODCAST_ID_ATTRIBUTE, DISPLAY_MODE_ATTRIBUTE, EPISODE_ID_ATTRIBUTE, PLAYER_SIZE_ATTRIBUTE].sort(),
     );
-    for (const attribute of [PODCAST_ID_ATTRIBUTE, DISPLAY_MODE_ATTRIBUTE, EPISODE_ID_ATTRIBUTE]) {
+    for (const attribute of [PODCAST_ID_ATTRIBUTE, DISPLAY_MODE_ATTRIBUTE, EPISODE_ID_ATTRIBUTE, PLAYER_SIZE_ATTRIBUTE]) {
       expect(attribute).toBe(attribute.toLowerCase());
     }
   });
 
   it("are exactly the keys the dialog's ui hints are filed under", () => {
     expect(Object.keys(uiSchema).sort()).toEqual(
-      [PODCAST_ID_ATTRIBUTE, EPISODE_ID_ATTRIBUTE].sort(),
+      [PODCAST_ID_ATTRIBUTE, EPISODE_ID_ATTRIBUTE, PLAYER_SIZE_ATTRIBUTE].sort(),
     );
   });
 });
@@ -48,5 +50,12 @@ describe("entity pickers", () => {
     expect(typeof stopEpisodePickerInjector).toBe("function");
     stopPodcastPickerInjector();
     stopEpisodePickerInjector();
+  });
+});
+
+describe("episode field visibility", () => {
+  it("starts watching the display-mode field from module load on", () => {
+    expect(typeof stopEpisodeVisibilityToggle).toBe("function");
+    stopEpisodeVisibilityToggle();
   });
 });

@@ -1,0 +1,296 @@
+// Copyright 2026, MHP Management und IT-Beratung GmbH and contributors.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//     http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// The MAN-CI podcast player, per the "Podcast Player" design handoff. Colour,
+// radius, spacing and type all come from the shared MAN tokens (see
+// `@shared/stylings/man-tokens`) rather than being retyped here — a value
+// changes in one place (`onetruck-css/src/tokens.scss`) and every widget
+// using `man(...)` picks it up the next time this compiles, and at runtime
+// falls back to the same value if the tenant hasn't loaded the MAN theme at
+// all (preview, a different tenant, …).
+@use "@shared/stylings/man-tokens" as *;
+
+// Every rule below is nested under this id — see `ROOT_ID` in `styles.ts`
+// for why: a host page's own, later-loaded or more specific CSS otherwise
+// wins over a plain class selector, which is exactly what was happening
+// before this wrapper existed. An id compound selector outweighs any number
+// of chained classes without resorting to `!important` everywhere.
+#podcast-display-widget-root {
+  &.podcast-display {
+    box-sizing: border-box;
+    display: block;
+    min-width: 0;
+    color: man("text");
+  }
+
+  .podcast-display__status,
+  .podcast-display__error {
+    margin: 0;
+    @include man-type("body-s", $important: true);
+    color: man("text-muted") !important;
+  }
+
+  .podcast-display__error {
+    color: man("error") !important;
+  }
+
+  // --- Player-Karte, beide Größen teilen sich Rahmen und Fläche -----------
+  .podcast-display__player {
+    box-sizing: border-box;
+    display: block;
+    background: man("surface");
+    border: man("border-width") solid man("border");
+    border-radius: man("radius");
+  }
+
+  .podcast-display__player * {
+    box-sizing: border-box;
+  }
+
+  // --- Groß ----------------------------------------------------------------
+  .podcast-display__player--large {
+    padding: man("space-4");
+  }
+
+  .podcast-display__player--large .podcast-display__header {
+    display: flex;
+    align-items: stretch;
+    gap: man("space-4");
+  }
+
+  .podcast-display__player--large .podcast-display__thumbnail {
+    display: block;
+    flex: 0 0 auto;
+    width: 204px;
+    height: 204px;
+    object-fit: cover;
+    border-radius: man("radius");
+    background: man("surface-sunken");
+  }
+
+  .podcast-display__player--large .podcast-display__info {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .podcast-display__player--large .podcast-display__title {
+    margin: 0 0 man("space-2");
+    @include man-type("h3", $important: true);
+    color: man("text") !important;
+    text-transform: uppercase !important;
+  }
+
+  .podcast-display__player--large .podcast-display__date {
+    margin: 0;
+    @include man-type("body-s", $important: true);
+    color: man("text-muted") !important;
+  }
+
+  // Sitzt in der Info-Spalte neben dem Cover, nicht darunter — `margin-top:
+  // auto` schiebt sie an den unteren Rand der Spalte, auf gleicher Höhe mit
+  // dem Cover, statt direkt unter Titel/Datum zu kleben.
+  .podcast-display__controls {
+    display: flex;
+    align-items: center;
+    gap: man("space-4");
+    margin-top: auto;
+    padding-top: man("space-3");
+  }
+
+  // `button.` (not just the class) plus `!important` on the properties the
+  // Staffbase theme itself sets `!important` for real `<button>` elements
+  // (full-width CTA background, block display, auto margin — see
+  // `content-tabs/src/styles.ts` for the same fight): the id wrapper alone
+  // outweighs a plain class or two, but never an `!important` declaration.
+  button.podcast-display__play {
+    flex: 0 0 auto;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 56px !important;
+    height: 56px !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: man("radius") !important;
+    box-shadow: none !important;
+    background: man("red") !important;
+    background-image: none !important;
+    color: man("white") !important;
+    cursor: pointer;
+    transition: background man("duration") man("ease");
+  }
+
+  button.podcast-display__play:hover,
+  button.podcast-display__play:focus {
+    background: man("red-hover") !important;
+    background-image: none !important;
+  }
+
+  button.podcast-display__play:active {
+    background: man("red-active") !important;
+    background-image: none !important;
+  }
+
+  button.podcast-display__play:focus-visible {
+    outline: man("focus");
+    outline-offset: man("focus-offset");
+  }
+
+  .podcast-display__progress {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .podcast-display__track {
+    position: relative;
+    height: 4px;
+    background: man("border-subtle");
+    border-radius: man("radius");
+    cursor: pointer;
+  }
+
+  .podcast-display__track:focus-visible {
+    outline: man("focus");
+    outline-offset: man("focus-offset");
+  }
+
+  .podcast-display__fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background: man("red");
+    border-radius: man("radius");
+  }
+
+  .podcast-display__handle {
+    position: absolute;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    background: man("red");
+    border-radius: man("radius-round");
+    transform: translate(-50%, -50%);
+  }
+
+  .podcast-display__times {
+    display: flex;
+    justify-content: space-between;
+    margin-top: man("space-1");
+    @include man-type("caption", $important: true);
+    font-variant-numeric: tabular-nums;
+    color: man("text-muted") !important;
+  }
+
+  .podcast-display__extra {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: man("space-2");
+  }
+
+  button.podcast-display__rate,
+  button.podcast-display__mute {
+    flex: 0 0 auto;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: auto !important;
+    min-width: 40px;
+    height: 40px !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 man("space-2") !important;
+    border: man("border-width") solid man("border") !important;
+    border-radius: man("radius") !important;
+    box-shadow: none !important;
+    background: man("surface") !important;
+    background-image: none !important;
+    color: man("text") !important;
+    cursor: pointer;
+    @include man-type("label", $important: true);
+    transition:
+      border-color man("duration") man("ease"),
+      color man("duration") man("ease");
+  }
+
+  button.podcast-display__rate:hover,
+  button.podcast-display__mute:hover,
+  button.podcast-display__rate:focus,
+  button.podcast-display__mute:focus {
+    background: man("surface") !important;
+    background-image: none !important;
+    border-color: man("border-strong") !important;
+    color: man("border-strong") !important;
+  }
+
+  button.podcast-display__rate:focus-visible,
+  button.podcast-display__mute:focus-visible {
+    outline: man("focus");
+    outline-offset: man("focus-offset");
+  }
+
+  // --- Kompakt ---------------------------------------------------------------
+  .podcast-display__player--small {
+    max-width: 380px;
+    padding: man("space-3");
+  }
+
+  .podcast-display__row {
+    display: flex;
+    align-items: center;
+    gap: man("space-3");
+  }
+
+  .podcast-display__thumbnail--small {
+    display: block;
+    flex: 0 0 auto;
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: man("radius");
+    background: man("surface-sunken");
+  }
+
+  .podcast-display__player--small .podcast-display__info {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .podcast-display__title--small {
+    margin: 0;
+    @include man-type("label", $important: true);
+    color: man("text") !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .podcast-display__player--small .podcast-display__date {
+    margin: 0;
+    @include man-type("caption", $important: true);
+    color: man("text-muted") !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  button.podcast-display__play--small {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .podcast-display__track--thin {
+    margin-top: man("space-2");
+  }
+}

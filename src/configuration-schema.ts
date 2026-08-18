@@ -44,6 +44,15 @@ export const configurationSchema: JSONSchema7 = {
       type: "string",
       title: "Episode-ID",
     },
+    "player-size": {
+      type: "string",
+      title: "Player-Größe",
+      default: "large",
+      oneOf: [
+        { const: "large", title: "Groß" },
+        { const: "small", title: "Kompakt" },
+      ],
+    },
   },
 };
 
@@ -59,5 +68,10 @@ export const uiSchema: UiSchema = {
   "episode-id": {
     "ui:help":
       'Nur im Modus "Bestimmte Episode" verwendet. Die Episode-ID oder die vollständige URL der Audiodatei.',
+  },
+  "player-size": {
+    "ui:help":
+      "Groß: Cover, Titel, Datum und volle Steuerung (Geschwindigkeit, Stummschalten). " +
+      "Kompakt: schmale Kachel für Feeds und schmale Spalten, nur Play und Fortschritt.",
   },
 };
