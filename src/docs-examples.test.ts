@@ -72,4 +72,72 @@ describe("podcast-display-widget docs-examples", () => {
     expect(result["podcast-id"]).toBeUndefined();
     expect(result["episode-id"]).toBeUndefined();
   });
+
+  it("skips a podcast with no episodes and uses the next one that has one", async () => {
+    mockFetch(async (input: RequestInfo | URL) => {
+      const url = input.toString();
+      if (url.startsWith(PODCAST_SEARCH_ENDPOINT)) {
+        return new Response(
+          JSON.stringify({
+            entries: [
+              { installationId: "podcast-empty", scope: "global" },
+              { installationId: "podcast-with-episodes", scope: "global" },
+            ],
+          }),
+          { status: 200 },
+        );
+      }
+      if (url.includes("/api/installations/")) {
+        return new Response(JSON.stringify({ config: { localization: {} } }), { status: 200 });
+      }
+      if (url.includes("episode-audio")) {
+        const hasEpisodes = url.includes("podcast-with-episodes");
+        return new Response(
+          JSON.stringify({
+            data: hasEpisodes
+              ? [{ episodeId: "ep-1", episodeTitle: "Folge 1", publishedAt: "2026-01-01", thumbnailUrl: "", url: "" }]
+              : [],
+          }),
+          { status: 200 },
+        );
+      }
+      throw new Error(`unexpected fetch: ${url}`);
+    });
+
+    const resolver = getDocsExamplesResolver("podcast-display-widget");
+    const result = await resolver!();
+
+    expect(result["podcast-id"]).toBe("podcast-with-episodes");
+    expect(result["episode-id"]).toBe("ep-1");
+  });
+
+  it("falls back to the plain first podcast (no episode-id) when none has an episode", async () => {
+    mockFetch(async (input: RequestInfo | URL) => {
+      const url = input.toString();
+      if (url.startsWith(PODCAST_SEARCH_ENDPOINT)) {
+        return new Response(
+          JSON.stringify({
+            entries: [
+              { installationId: "podcast-1", scope: "global" },
+              { installationId: "podcast-2", scope: "global" },
+            ],
+          }),
+          { status: 200 },
+        );
+      }
+      if (url.includes("/api/installations/")) {
+        return new Response(JSON.stringify({ config: { localization: {} } }), { status: 200 });
+      }
+      if (url.includes("episode-audio")) {
+        return new Response(JSON.stringify({ data: [] }), { status: 200 });
+      }
+      throw new Error(`unexpected fetch: ${url}`);
+    });
+
+    const resolver = getDocsExamplesResolver("podcast-display-widget");
+    const result = await resolver!();
+
+    expect(result["podcast-id"]).toBe("podcast-1");
+    expect(result["episode-id"]).toBeUndefined();
+  });
 });

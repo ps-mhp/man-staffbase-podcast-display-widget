@@ -21,18 +21,46 @@ function firstUsableId(options: { id: string; disabled?: boolean }[]): string | 
   return options.find((option) => !option.disabled)?.id ?? options[0]?.id ?? null;
 }
 
+/**
+ * All ids in "try this order" — every non-disabled option first (in their
+ * original, most-recently-updated-first order), then every disabled one.
+ * Matches `firstUsableId`'s preference for a single pick, but keeps every
+ * candidate so the caller can move on to the next one instead of settling
+ * for the very first, which may turn out unusable for a *different* reason
+ * (see below: a podcast with no episodes yet).
+ */
+function orderedUsableIds(options: { id: string; disabled?: boolean }[]): string[] {
+  const enabled = options.filter((option) => !option.disabled).map((option) => option.id);
+  const disabled = options.filter((option) => option.disabled).map((option) => option.id);
+  return [...enabled, ...disabled];
+}
+
 registerDocsExamples("podcast-display-widget", async () => {
   const attributes: Record<string, string> = {};
 
   const podcasts = await fetchEntityCatalog(podcastCatalogSource);
   const firstPodcastId = firstUsableId(podcasts);
-  if (firstPodcastId) {
-    attributes["podcast-id"] = firstPodcastId;
+  if (!firstPodcastId) {
+    return attributes;
+  }
+  // Default: the plain first-available podcast, no episode — this is what
+  // ships if none of the candidates below have an episode yet.
+  attributes["podcast-id"] = firstPodcastId;
 
-    const episodes = await fetchEntityCatalog(createEpisodeCatalogSource(() => firstPodcastId));
+  // The "specific episode" example needs a podcast that actually *has* an
+  // episode — the pragmatic "just take the first available entity" rule
+  // from the design doesn't hold up once the first podcast happens to be
+  // empty (a brand-new podcast with no episodes yet), which would otherwise
+  // always show the "kein Live-Datensatz" fallback even though other,
+  // usable podcasts exist. So this tries every candidate, in the same
+  // enabled-before-disabled order, and keeps the first one with episodes.
+  for (const podcastId of orderedUsableIds(podcasts)) {
+    const episodes = await fetchEntityCatalog(createEpisodeCatalogSource(() => podcastId));
     const firstEpisodeId = firstUsableId(episodes);
     if (firstEpisodeId) {
+      attributes["podcast-id"] = podcastId;
       attributes["episode-id"] = firstEpisodeId;
+      break;
     }
   }
 

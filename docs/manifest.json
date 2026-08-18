@@ -1,6 +1,7 @@
 {
   "title": "Podcast-Anzeige",
   "summary": "Zeigt einen Podcast-Player für die neueste oder eine bestimmte Episode an.",
+  "icon": "🎙️",
   "pages": [
     { "id": "overview", "title": "Übersicht", "file": "overview.md" },
     { "id": "settings", "title": "Einstellungen", "file": "settings.md" },
