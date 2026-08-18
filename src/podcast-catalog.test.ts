@@ -13,9 +13,8 @@
 
 import { PODCAST_SEARCH_ENDPOINT, podcastCatalogSource } from "./podcast-catalog";
 
-function respondWith(body, status = 200) {
-  return jest.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(body), { status }));
-}
+const respondWith = (body: unknown, status = 200): jest.SpyInstance =>
+  jest.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(body), { status }));
 
 describe("podcastCatalogSource.fetchList", () => {
   afterEach(() => jest.restoreAllMocks());
@@ -25,9 +24,7 @@ describe("podcastCatalogSource.fetchList", () => {
 
     await podcastCatalogSource.fetchList();
 
-    const callArgs = fetchMock.mock.calls[0];
-    const url = callArgs[0];
-    const init = callArgs[1];
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url.startsWith(PODCAST_SEARCH_ENDPOINT)).toBe(true);
     expect(url).toContain("limit=100");
     expect(url).toContain("sort=updated_DESC");
@@ -74,7 +71,7 @@ describe("podcastCatalogSource.toOption", () => {
     respondWith({ config: { localization: { en_US: { title: "Podcast" }, de_DE: { title: "Hörprogramm" } } } });
 
     await expect(
-      podcastCatalogSource.toOption({ installationId: "aaaaaaaaaaaaaaaaaaaaaaaa" }),
+      podcastCatalogSource.toOption({ installationId: "aaaaaaaaaaaaaaaaaaaaaaaa" } as never),
     ).resolves.toEqual({ id: "aaaaaaaaaaaaaaaaaaaaaaaa", title: "Hörprogramm" });
   });
 
@@ -82,7 +79,7 @@ describe("podcastCatalogSource.toOption", () => {
     jest.spyOn(globalThis, "fetch").mockRejectedValue(new Error("offline"));
 
     await expect(
-      podcastCatalogSource.toOption({ installationId: "bbbbbbbbbbbbbbbbbbbbbbbb" }),
+      podcastCatalogSource.toOption({ installationId: "bbbbbbbbbbbbbbbbbbbbbbbb" } as never),
     ).resolves.toEqual({ id: "bbbbbbbbbbbbbbbbbbbbbbbb", title: "bbbbbbbbbbbbbbbbbbbbbbbb" });
   });
 
@@ -90,7 +87,7 @@ describe("podcastCatalogSource.toOption", () => {
     respondWith({}, 404);
 
     await expect(
-      podcastCatalogSource.toOption({ installationId: "cccccccccccccccccccccccc" }),
+      podcastCatalogSource.toOption({ installationId: "cccccccccccccccccccccccc" } as never),
     ).resolves.toEqual({ id: "cccccccccccccccccccccccc", title: "cccccccccccccccccccccccc" });
   });
 
@@ -98,7 +95,7 @@ describe("podcastCatalogSource.toOption", () => {
     respondWith({ config: { localization: {} } });
 
     await expect(
-      podcastCatalogSource.toOption({ installationId: "dddddddddddddddddddddddd" }),
+      podcastCatalogSource.toOption({ installationId: "dddddddddddddddddddddddd" } as never),
     ).resolves.toEqual({ id: "dddddddddddddddddddddddd", title: "dddddddddddddddddddddddd" });
   });
 });
