@@ -2,11 +2,16 @@
 
 | Ustawienie | Opis |
 | --- | --- |
-| Podcast | Podcast, z którego wyświetlany jest odcinek. Pole obowiązkowe. |
-| Tryb wyświetlania | „Najnowszy odcinek” zawsze wyświetla najnowszy odcinek; „Określony odcinek” stale wyświetla wybrany poniżej odcinek. |
-| Odcinek | Widoczne tylko w trybie wyświetlania „Określony odcinek”: konkretny odcinek, który ma być wyświetlany. |
-| Rozmiar odtwarzacza | „Duży” wyświetla okładkę, tytuł i pełne sterowanie; „Mały” wyświetla kompaktowy wiersz z przyciskami odtwarzania/pauzy. |
+| Identyfikator podcastu | Podcast, z którego wyświetlany jest odcinek. Pole obowiązkowe. Zazwyczaj wybiera się go z listy rozwijanej; w razie potrzeby należy wpisać pełny adres podcastu. |
+| Tryb wyświetlania | `Najnowszy odcinek` (ustawienie domyślne) zawsze wyświetla najnowszy odcinek. `Określony odcinek` stale wyświetla odcinek wybrany poniżej. |
+| Identyfikator odcinka | Działa tylko w trybie `Określony odcinek`. Żądany odcinek — z listy wyboru lub jako identyfikator lub pełny adres pliku audio. |
+| Rozmiar odtwarzacza | `Duży` (ustawienie domyślne): okładka, tytuł, data, pełne sterowanie, w tym regulacja prędkości i wyciszenie. `Kompaktowy`: wąska kafelka z przyciskiem odtwarzania i wskaźnikiem postępu. |
 
-Podcast i odcinek można wygodnie wybrać za pomocą rozwijanego menu w
-oknie dialogowym konfiguracji; jeśli w wyjątkowych przypadkach lista nie jest
-dostępna, można również ręcznie wprowadzić odpowiedni identyfikator.
+## Uwagi
+
+- W trybie `Najnowszy odcinek` wartość wpisana w polu „ID odcinka”
+  jest po prostu ignorowana — nie trzeba jej usuwać.
+- Lista wyboru odcinków wypełnia się dopiero po wybraniu podcastu
+  w górnej części ekranu.
+- Zmiana rozmiaru odtwarzacza wpływa wyłącznie na wygląd, a nie na
+  odtwarzany odcinek.

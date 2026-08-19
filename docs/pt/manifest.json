@@ -1,11 +1,16 @@
 {
   "title": "Anúncio de podcast",
-  "summary": "Apresenta um leitor de podcasts para o episódio mais recente ou para um episódio específico.",
+  "summary": "Reproduz um episódio de podcast diretamente numa página — podendo escolher entre o mais recente ou um específico.",
   "pages": [
     {
       "id": "overview",
       "title": "Visão geral",
       "file": "overview.md"
+    },
+    {
+      "id": "usage",
+      "title": "Passo a passo",
+      "file": "usage.md"
     },
     {
       "id": "settings",

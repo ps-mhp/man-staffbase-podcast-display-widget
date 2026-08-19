@@ -1,11 +1,16 @@
 {
   "title": "Anuncio de podcast",
-  "summary": "Muestra un reproductor de podcasts para el último episodio o para uno concreto.",
+  "summary": "Reproduce un episodio de podcast directamente en una página, ya sea siempre el más reciente o uno concreto.",
   "pages": [
     {
       "id": "overview",
       "title": "Resumen",
       "file": "overview.md"
+    },
+    {
+      "id": "usage",
+      "title": "Paso a paso",
+      "file": "usage.md"
     },
     {
       "id": "settings",
@@ -20,7 +25,7 @@
   ],
   "examples": [
     {
-      "title": "Último episodio, gran protagonista",
+      "title": "Último episodio, gran reproductor",
       "attributes": {
         "display-mode": "latest",
         "player-size": "large"

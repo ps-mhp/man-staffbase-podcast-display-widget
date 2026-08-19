@@ -1,9 +1,34 @@
-# Anúncio de podcast
+# Visualização do podcast
 
-O anúncio de podcast incorpora um único leitor de podcast numa página.
-Pode mostrar sempre o **episódio mais recente** de um podcast — o
-widget atualiza-se automaticamente assim que for lançado um novo episódio —
-ou exibir permanentemente um **episódio específico e pré-selecionado**.
+A visualização do podcast apresenta um reprodutor para **um** episódio de podcast numa
+página. Os leitores podem ouvir o episódio diretamente ali, sem terem de
+passar para a secção de podcasts.
 
-O widget é adequado para páginas de destino de podcasts, páginas de equipas ou canais, bem como
-para publicações individuais que devam remeter para um episódio específico.
+## Dois modos de funcionamento
+
+- **Episódio mais recente:** O widget mostra sempre o episódio mais recente do
+  podcast selecionado. Quando surge um novo episódio, o widget atualiza-se
+  automaticamente — não é necessário alterar a página. Ideal para páginas iniciais,
+  páginas de destino de podcasts e páginas de canais.
+- **Episódio específico:** O widget exibe permanentemente exatamente o
+  episódio selecionado. Ideal para publicações ou páginas que se referem a um episódio
+  concreto.
+
+## Dois tamanhos de leitor
+
+- **Grande:** imagem de capa, título, data, Reproduzir/Pausa, barra de progresso com
+  indicação de tempo, velocidade de reprodução (1× → 1,25× → 1,5× → 2×) e
+  silenciador. Para áreas largas e páginas em que o podcast é o
+  tema principal.
+- **Compacto:** mosaico estreito com imagem de capa, título, data e hora, Reproduzir/Pausa
+  e uma barra de progresso fina. Sem velocidade de reprodução nem
+  função de silenciar. Para colunas estreitas e visões gerais.
+
+## Importante saber
+
+- O podcast tem de já existir no Staffbase e ter, pelo menos, um episódio
+  . O widget não cria podcasts nem episódios.
+- É sempre reproduzido **um** episódio, nunca uma lista de episódios.
+- Não há reprodução automática e a posição de audição não é
+  guardada: ao voltar a abrir a página, o episódio recomeça do
+  início.

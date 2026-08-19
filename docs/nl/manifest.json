@@ -1,11 +1,16 @@
 {
   "title": "Podcast-advertentie",
-  "summary": "Geeft een podcastspeler weer voor de nieuwste aflevering of een specifieke aflevering.",
+  "summary": "Speel een podcastaflevering direct op een pagina af — naar keuze altijd de nieuwste of een vaste aflevering.",
   "pages": [
     {
       "id": "overview",
       "title": "Overzicht",
       "file": "overview.md"
+    },
+    {
+      "id": "usage",
+      "title": "Stap voor stap",
+      "file": "usage.md"
     },
     {
       "id": "settings",

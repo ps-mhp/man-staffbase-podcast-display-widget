@@ -1,11 +1,16 @@
 {
   "title": "Annonce de podcast",
-  "summary": "Affiche un lecteur de podcast pour le dernier épisode ou un épisode spécifique.",
+  "summary": "Lance la lecture d'un épisode de podcast directement sur une page — au choix, toujours le plus récent ou un épisode spécifique.",
   "pages": [
     {
       "id": "overview",
       "title": "Aperçu",
       "file": "overview.md"
+    },
+    {
+      "id": "usage",
+      "title": "Étape par étape",
+      "file": "usage.md"
     },
     {
       "id": "settings",

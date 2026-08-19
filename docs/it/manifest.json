@@ -1,11 +1,16 @@
 {
   "title": "Pubblicità nel podcast",
-  "summary": "Visualizza un lettore di podcast per l'ultimo episodio o per un episodio specifico.",
+  "summary": "Riproduci un episodio del podcast direttamente su una pagina — a scelta, sempre l'ultimo o uno specifico.",
   "pages": [
     {
       "id": "overview",
       "title": "Panoramica",
       "file": "overview.md"
+    },
+    {
+      "id": "usage",
+      "title": "Passo dopo passo",
+      "file": "usage.md"
     },
     {
       "id": "settings",

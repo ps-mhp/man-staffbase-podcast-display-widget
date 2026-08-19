@@ -1,11 +1,16 @@
 {
   "title": "Reklama podcastu",
-  "summary": "Wyświetla odtwarzacz podcastów z najnowszym lub wybranym odcinkiem.",
+  "summary": "Odtwarzaj odcinek podcastu bezpośrednio na stronie — do wyboru zawsze najnowszy lub konkretny.",
   "pages": [
     {
       "id": "overview",
       "title": "Przegląd",
       "file": "overview.md"
+    },
+    {
+      "id": "usage",
+      "title": "Krok po kroku",
+      "file": "usage.md"
     },
     {
       "id": "settings",

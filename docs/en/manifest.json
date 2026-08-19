@@ -1,11 +1,16 @@
 {
   "title": "Podcast Ad",
-  "summary": "Displays a podcast player for the latest episode or a specific episode.",
+  "summary": "Play a podcast episode directly on a page—either the latest one or a specific one, as you choose.",
   "pages": [
     {
       "id": "overview",
       "title": "Overview",
       "file": "overview.md"
+    },
+    {
+      "id": "usage",
+      "title": "Step by step",
+      "file": "usage.md"
     },
     {
       "id": "settings",
@@ -30,7 +35,7 @@
       ]
     },
     {
-      "title": "A specific episode, a small player",
+      "title": "A specific episode, small player",
       "attributes": {
         "display-mode": "specific",
         "player-size": "small"
