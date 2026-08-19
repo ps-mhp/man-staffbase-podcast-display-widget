@@ -1,0 +1,45 @@
+{
+  "title": "Anuncio de podcast",
+  "summary": "Muestra un reproductor de podcasts para el último episodio o para uno concreto.",
+  "icon": "🎙️",
+  "pages": [
+    {
+      "id": "overview",
+      "title": "Resumen",
+      "file": "overview.md"
+    },
+    {
+      "id": "settings",
+      "title": "Configuración",
+      "file": "settings.md"
+    },
+    {
+      "id": "faq",
+      "title": "Preguntas frecuentes",
+      "file": "faq.md"
+    }
+  ],
+  "examples": [
+    {
+      "title": "Último episodio, gran protagonista",
+      "attributes": {
+        "display-mode": "latest",
+        "player-size": "large"
+      },
+      "resolve": [
+        "podcast-id"
+      ]
+    },
+    {
+      "title": "Episodio concreto, reproductor pequeño",
+      "attributes": {
+        "display-mode": "specific",
+        "player-size": "small"
+      },
+      "resolve": [
+        "podcast-id",
+        "episode-id"
+      ]
+    }
+  ]
+}

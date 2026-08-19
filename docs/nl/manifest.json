@@ -1,0 +1,45 @@
+{
+  "title": "Podcast-advertentie",
+  "summary": "Geeft een podcastspeler weer voor de nieuwste aflevering of een specifieke aflevering.",
+  "icon": "🎙️",
+  "pages": [
+    {
+      "id": "overview",
+      "title": "Overzicht",
+      "file": "overview.md"
+    },
+    {
+      "id": "settings",
+      "title": "Instellingen",
+      "file": "settings.md"
+    },
+    {
+      "id": "faq",
+      "title": "Veelgestelde vragen",
+      "file": "faq.md"
+    }
+  ],
+  "examples": [
+    {
+      "title": "Nieuwste aflevering, grote speler",
+      "attributes": {
+        "display-mode": "latest",
+        "player-size": "large"
+      },
+      "resolve": [
+        "podcast-id"
+      ]
+    },
+    {
+      "title": "Een bepaalde aflevering, kleine speler",
+      "attributes": {
+        "display-mode": "specific",
+        "player-size": "small"
+      },
+      "resolve": [
+        "podcast-id",
+        "episode-id"
+      ]
+    }
+  ]
+}

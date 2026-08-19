@@ -1,0 +1,45 @@
+{
+  "title": "Anúncio de podcast",
+  "summary": "Apresenta um leitor de podcasts para o episódio mais recente ou para um episódio específico.",
+  "icon": "🎙️",
+  "pages": [
+    {
+      "id": "overview",
+      "title": "Visão geral",
+      "file": "overview.md"
+    },
+    {
+      "id": "settings",
+      "title": "Definições",
+      "file": "settings.md"
+    },
+    {
+      "id": "faq",
+      "title": "Perguntas frequentes",
+      "file": "faq.md"
+    }
+  ],
+  "examples": [
+    {
+      "title": "Episódio mais recente, grande protagonista",
+      "attributes": {
+        "display-mode": "latest",
+        "player-size": "large"
+      },
+      "resolve": [
+        "podcast-id"
+      ]
+    },
+    {
+      "title": "Episódio específico, leitor pequeno",
+      "attributes": {
+        "display-mode": "specific",
+        "player-size": "small"
+      },
+      "resolve": [
+        "podcast-id",
+        "episode-id"
+      ]
+    }
+  ]
+}
