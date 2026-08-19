@@ -35,7 +35,7 @@ function orderedUsableIds(options: { id: string; disabled?: boolean }[]): string
   return [...enabled, ...disabled];
 }
 
-registerDocsExamples("podcast-display-widget", async () => {
+async function resolveAttributes(): Promise<Record<string, string>> {
   const attributes: Record<string, string> = {};
 
   const podcasts = await fetchEntityCatalog(podcastCatalogSource);
@@ -65,4 +65,34 @@ registerDocsExamples("podcast-display-widget", async () => {
   }
 
   return attributes;
+}
+
+/**
+ * The result of {@link resolveAttributes}, looked up once and reused for
+ * every example on the docs page.
+ *
+ * The docs app is just a *display* of the widget — it renders the same
+ * "which podcast/episode should the examples use" question for every
+ * example on the page (currently two), and asking it twice is both wasted
+ * work (a podcast search plus one episode search per candidate, all over
+ * again) and a correctness risk: two independent searches can land on
+ * different results if the underlying data changes between them, which
+ * would make the "latest episode" example show one podcast while the
+ * "specific episode" example resolves a different, unrelated one. Doing the
+ * lookup once and reusing it keeps every example on the same page
+ * consistent with each other.
+ */
+let cachedAttributes: Promise<Record<string, string>> | null = null;
+
+/**
+ * Test-only: clears the memoized lookup so each test starts from a clean
+ * slate instead of silently reusing an earlier test's mocked result.
+ */
+export function __resetDocsExamplesCacheForTests(): void {
+  cachedAttributes = null;
+}
+
+registerDocsExamples("podcast-display-widget", () => {
+  cachedAttributes ??= resolveAttributes();
+  return cachedAttributes;
 });

@@ -14,6 +14,7 @@
 import "./docs-examples";
 import { getDocsExamplesResolver } from "@shared/docs/register-docs-examples";
 import { PODCAST_SEARCH_ENDPOINT } from "./podcast-catalog";
+import { __resetDocsExamplesCacheForTests } from "./docs-examples";
 
 function mockFetch(implementation: (input: RequestInfo | URL) => Promise<Response>): jest.SpyInstance {
   return jest.spyOn(globalThis, "fetch").mockImplementation(implementation as never);
@@ -22,6 +23,7 @@ function mockFetch(implementation: (input: RequestInfo | URL) => Promise<Respons
 describe("podcast-display-widget docs-examples", () => {
   afterEach(() => {
     jest.restoreAllMocks();
+    __resetDocsExamplesCacheForTests();
   });
 
   it("registers a resolver that returns the first podcast's and first episode's id", async () => {
@@ -139,5 +141,45 @@ describe("podcast-display-widget docs-examples", () => {
 
     expect(result["podcast-id"]).toBe("podcast-1");
     expect(result["episode-id"]).toBeUndefined();
+  });
+
+  it("only searches once, reusing the result for every example on the page", async () => {
+    const fetchMock = mockFetch(async (input: RequestInfo | URL) => {
+      const url = input.toString();
+      if (url.startsWith(PODCAST_SEARCH_ENDPOINT)) {
+        return new Response(
+          JSON.stringify({ entries: [{ installationId: "podcast-1", scope: "global" }] }),
+          { status: 200 },
+        );
+      }
+      if (url.includes("/api/installations/")) {
+        return new Response(JSON.stringify({ config: { localization: {} } }), { status: 200 });
+      }
+      if (url.includes("episode-audio")) {
+        return new Response(
+          JSON.stringify({
+            data: [
+              { episodeId: "ep-1", episodeTitle: "Folge 1", publishedAt: "2026-01-01", thumbnailUrl: "", url: "" },
+            ],
+          }),
+          { status: 200 },
+        );
+      }
+      throw new Error(`unexpected fetch: ${url}`);
+    });
+
+    const resolver = getDocsExamplesResolver("podcast-display-widget")!;
+
+    // Two examples on the docs page each call the resolver independently —
+    // both must see the exact same, single lookup.
+    const [first, second] = await Promise.all([resolver(), resolver()]);
+    expect(first).toBe(second);
+
+    const callCountAfterFirstRound = fetchMock.mock.calls.length;
+    expect(callCountAfterFirstRound).toBeGreaterThan(0);
+
+    // A later, independent call (e.g. a third example) still reuses it.
+    await resolver();
+    expect(fetchMock.mock.calls.length).toBe(callCountAfterFirstRound);
   });
 });
