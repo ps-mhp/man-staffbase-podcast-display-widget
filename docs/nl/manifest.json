@@ -1,7 +1,6 @@
 {
   "title": "Podcast-advertentie",
   "summary": "Geeft een podcastspeler weer voor de nieuwste aflevering of een specifieke aflevering.",
-  "icon": "🎙️",
   "pages": [
     {
       "id": "overview",

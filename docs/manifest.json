@@ -1,22 +1,44 @@
 {
   "title": "Podcast-Anzeige",
   "summary": "Zeigt einen Podcast-Player für die neueste oder eine bestimmte Episode an.",
-  "icon": "🎙️",
   "pages": [
-    { "id": "overview", "title": "Übersicht", "file": "overview.md" },
-    { "id": "settings", "title": "Einstellungen", "file": "settings.md" },
-    { "id": "faq", "title": "FAQ", "file": "faq.md" }
+    {
+      "id": "overview",
+      "title": "Übersicht",
+      "file": "overview.md"
+    },
+    {
+      "id": "settings",
+      "title": "Einstellungen",
+      "file": "settings.md"
+    },
+    {
+      "id": "faq",
+      "title": "FAQ",
+      "file": "faq.md"
+    }
   ],
   "examples": [
     {
       "title": "Neueste Episode, großer Player",
-      "attributes": { "display-mode": "latest", "player-size": "large" },
-      "resolve": ["podcast-id"]
+      "attributes": {
+        "display-mode": "latest",
+        "player-size": "large"
+      },
+      "resolve": [
+        "podcast-id"
+      ]
     },
     {
       "title": "Bestimmte Episode, kleiner Player",
-      "attributes": { "display-mode": "specific", "player-size": "small" },
-      "resolve": ["podcast-id", "episode-id"]
+      "attributes": {
+        "display-mode": "specific",
+        "player-size": "small"
+      },
+      "resolve": [
+        "podcast-id",
+        "episode-id"
+      ]
     }
   ]
 }

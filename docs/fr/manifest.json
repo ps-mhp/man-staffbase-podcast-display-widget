@@ -1,7 +1,6 @@
 {
   "title": "Annonce de podcast",
   "summary": "Affiche un lecteur de podcast pour le dernier épisode ou un épisode spécifique.",
-  "icon": "🎙️",
   "pages": [
     {
       "id": "overview",

@@ -1,7 +1,6 @@
 {
   "title": "Reklama podcastu",
   "summary": "Wyświetla odtwarzacz podcastów z najnowszym lub wybranym odcinkiem.",
-  "icon": "🎙️",
   "pages": [
     {
       "id": "overview",

@@ -1,7 +1,6 @@
 {
   "title": "Pubblicità nel podcast",
   "summary": "Visualizza un lettore di podcast per l'ultimo episodio o per un episodio specifico.",
-  "icon": "🎙️",
   "pages": [
     {
       "id": "overview",

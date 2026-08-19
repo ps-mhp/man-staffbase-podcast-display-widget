@@ -1,7 +1,6 @@
 {
   "title": "Podcast Ad",
   "summary": "Displays a podcast player for the latest episode or a specific episode.",
-  "icon": "🎙️",
   "pages": [
     {
       "id": "overview",
