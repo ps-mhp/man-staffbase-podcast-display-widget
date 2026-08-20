@@ -243,8 +243,10 @@
   }
 
   // --- Kompakt ---------------------------------------------------------------
+  // Keine eigene Breite: der Player folgt dem Container, den Staffbase ihm
+  // gibt, wie die grosse Variante auch. "Klein" meint die Hoehe und die
+  // Dichte der Zeile, nicht eine schmalere Spalte.
   .podcast-display__player--small {
-    max-width: 380px;
     padding: man("space-3");
   }
 
