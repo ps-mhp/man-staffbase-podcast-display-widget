@@ -242,6 +242,42 @@
     outline-offset: man("focus-offset");
   }
 
+  // --- KI-Kennzeichnung ------------------------------------------------------
+  // Nachbau der Staffbase-Pille (`ds-pill`), damit die Episode innerhalb des
+  // Widgets dasselbe Signal traegt wie KI-Inhalte ausserhalb davon. Die
+  // Host-Klassen selbst sind hier nicht benutzbar: sie gehoeren der App, nicht
+  // dem Widget, und liegen ausserhalb dieses id-Scopes.
+  .podcast-display__ai {
+    display: inline-flex;
+    align-items: center;
+    gap: man("space-1");
+    flex: 0 0 auto;
+    padding: 0 man("space-2");
+    border-radius: 999px;
+    background: man("surface-sunken");
+    color: man("text-muted");
+    @include man-type("caption", $important: true);
+    line-height: 20px !important;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  .podcast-display__ai svg {
+    display: block;
+    flex: 0 0 auto;
+  }
+
+  // Gross: hinter dem Datum, in derselben Zeile.
+  .podcast-display__player--large .podcast-display__date .podcast-display__ai {
+    margin-left: man("space-2");
+  }
+
+  // Klein: unter dem Datum, als eigene Zeile.
+  .podcast-display__player--small .podcast-display__ai {
+    display: inline-flex;
+    margin-top: man("space-1");
+  }
+
   // --- Kompakt ---------------------------------------------------------------
   // Keine eigene Breite: der Player folgt dem Container, den Staffbase ihm
   // gibt, wie die grosse Variante auch. "Klein" meint die Hoehe und die

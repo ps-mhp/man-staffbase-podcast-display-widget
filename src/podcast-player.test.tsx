@@ -189,3 +189,15 @@ describe("PodcastPlayer (small)", () => {
     expect(audio.currentTime).toBe(30); // a quarter of the stubbed 120s duration
   });
 });
+
+describe("KI-Kennzeichnung", () => {
+  it("marks the episode in the large player", () => {
+    render(<PodcastPlayer episode={episode} title="Folge" date="30.7.2026" size="large" />);
+    expect(screen.getByTestId("podcast-ai-badge")).toHaveTextContent("KI");
+  });
+
+  it("marks the episode in the small player", () => {
+    render(<PodcastPlayer episode={episode} title="Folge" date="30.7.2026" size="small" />);
+    expect(screen.getByTestId("podcast-ai-badge")).toHaveTextContent("KI");
+  });
+});
