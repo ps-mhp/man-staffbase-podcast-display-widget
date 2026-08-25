@@ -121,3 +121,33 @@ export function pickLocalizedTitle(
 
   return episodeTitle;
 }
+
+/**
+ * The reader's languages, the app's own setting first.
+ *
+ * `documentLocales` only knows which language the page was rendered in, and
+ * the Staffbase shell is served in English for plenty of readers who have set
+ * a different language for themselves. `/api/users/me` carries that setting
+ * (`config.locale`); it runs same-origin with the reader's session.
+ *
+ * A failed call is not an error here — the document still answers the
+ * question, just less precisely.
+ */
+export async function userLocales(): Promise<string[]> {
+  const fallback = documentLocales();
+  try {
+    const response = await fetch("/api/users/me", {
+      credentials: "same-origin",
+      headers: { Accept: "application/json" },
+    });
+    if (!response.ok) return fallback;
+
+    const user = (await response.json()) as { config?: { locale?: string } };
+    const raw = user.config?.locale?.trim();
+    if (!raw) return fallback;
+    const locale = normalizeLocale(raw);
+    return [locale, ...fallback.filter((other) => other !== locale)];
+  } catch {
+    return fallback;
+  }
+}

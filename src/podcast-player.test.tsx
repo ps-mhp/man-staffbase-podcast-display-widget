@@ -12,7 +12,7 @@
  */
 
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { Episode } from "./podcast-content";
 import { PodcastPlayer } from "./podcast-player";
@@ -191,13 +191,36 @@ describe("PodcastPlayer (small)", () => {
 });
 
 describe("KI-Kennzeichnung", () => {
+  afterEach(() => {
+    document.documentElement.removeAttribute("lang");
+    jest.restoreAllMocks();
+  });
+
   it("marks the episode in the large player", () => {
     render(<PodcastPlayer episode={episode} title="Folge" date="30.7.2026" size="large" />);
-    expect(screen.getByTestId("podcast-ai-badge")).toHaveTextContent("KI");
+    expect(screen.getByTestId("podcast-ai-badge")).toBeInTheDocument();
   });
 
   it("marks the episode in the small player", () => {
     render(<PodcastPlayer episode={episode} title="Folge" date="30.7.2026" size="small" />);
+    expect(screen.getByTestId("podcast-ai-badge")).toBeInTheDocument();
+  });
+
+  it("labels it in the language of the page until the user's own is known", () => {
+    document.documentElement.setAttribute("lang", "de-DE");
+    render(<PodcastPlayer episode={episode} title="Folge" date="30.7.2026" size="large" />);
     expect(screen.getByTestId("podcast-ai-badge")).toHaveTextContent("KI");
+  });
+
+  it("prefers the language the app has on file for the reader", async () => {
+    document.documentElement.setAttribute("lang", "en");
+    jest
+      .spyOn(globalThis, "fetch")
+      .mockImplementation(async () =>
+        new Response(JSON.stringify({ config: { locale: "es_ES" } }), { status: 200 }),
+      );
+
+    render(<PodcastPlayer episode={episode} title="Folge" date="30.7.2026" size="large" />);
+    await waitFor(() => expect(screen.getByTestId("podcast-ai-badge")).toHaveTextContent("IA"));
   });
 });
