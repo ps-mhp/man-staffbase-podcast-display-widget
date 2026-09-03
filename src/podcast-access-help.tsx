@@ -77,6 +77,9 @@ export function PodcastAccessHelp(): React.JSX.Element {
         {text.linkText}
       </button>
       {open && (
+        // `content`: klein und inhaltsgroß. Die Vorgabe von `ConfigModal`
+        // füllt einen ganzen Editor aus — für diesen kurzen Hilfetext wäre
+        // das viel zu groß.
         <ConfigModal testId="podcast-access-help-modal" variant="content">
           <h3 style={{ marginTop: 0, fontSize: "16px", color: "#111827" }}>{text.title}</h3>
           {text.body.map((paragraph, index) => (
