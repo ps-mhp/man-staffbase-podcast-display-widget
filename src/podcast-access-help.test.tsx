@@ -49,4 +49,18 @@ describe("PodcastAccessHelp", () => {
 
     expect(screen.getByTestId("podcast-access-help-modal")).toHaveTextContent("Podcast missing?");
   });
+
+  it("opens the modal in the content variant, small and content-sized", () => {
+    // Sichert, dass `podcast-access-help` die Hülle als `content`-Variante
+    // öffnet (min(480px, 90vw), Höhe nach Inhalt, scrollender Körper) statt als
+    // vollflächigen Editor. Geprüft an der Panel-Klasse, nicht am berechneten
+    // Stil — jsdom rechnet kein Layout.
+    document.documentElement.setAttribute("lang", "de-DE");
+    render(<PodcastAccessHelp />);
+
+    fireEvent.click(screen.getByTestId("podcast-access-help-link"));
+
+    const modal = screen.getByTestId("podcast-access-help-modal");
+    expect(modal.querySelector(".man-cfg-modal__panel--content")).not.toBeNull();
+  });
 });
