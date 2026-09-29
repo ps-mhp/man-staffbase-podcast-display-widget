@@ -39,6 +39,18 @@ const warningLinkStyle: React.CSSProperties = {
   fontWeight: 600,
 };
 
+/** Small and content-sized — `ConfigModal`'s own default fits a full editor. */
+const panelStyle: React.CSSProperties = {
+  width: "min(480px, 90vw)",
+  height: "auto",
+  maxHeight: "80vh",
+};
+
+const bodyStyle: React.CSSProperties = {
+  display: "block",
+  overflow: "auto",
+};
+
 const paragraphStyle: React.CSSProperties = {
   margin: "0 0 12px",
   fontSize: "13px",
@@ -77,10 +89,7 @@ export function PodcastAccessHelp(): React.JSX.Element {
         {text.linkText}
       </button>
       {open && (
-        // `content`: klein und inhaltsgroß. Die Vorgabe von `ConfigModal`
-        // füllt einen ganzen Editor aus — für diesen kurzen Hilfetext wäre
-        // das viel zu groß.
-        <ConfigModal testId="podcast-access-help-modal" variant="content">
+        <ConfigModal testId="podcast-access-help-modal" panelStyle={panelStyle} bodyStyle={bodyStyle}>
           <h3 style={{ marginTop: 0, fontSize: "16px", color: "#111827" }}>{text.title}</h3>
           {text.body.map((paragraph, index) => (
             <p key={index} style={paragraphStyle}>

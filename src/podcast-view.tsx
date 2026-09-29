@@ -62,10 +62,14 @@ export function PodcastView({
   playerSize?: PlayerSize;
 }): React.JSX.Element {
   const [state, setState] = React.useState<State>({ status: "loading" });
+  // A ref, not an effect on the document: the stylesheet has to land in the
+  // root this element was rendered into, which is a shadow root in the
+  // Content Designer (see `@shared/style-root`).
+  const anchorStyles = React.useCallback((element: HTMLElement | null) => {
+    if (element !== null) ensureStyles(element);
+  }, []);
 
   React.useEffect(() => {
-    ensureStyles();
-
     if (podcastId === null) {
       setState({ status: "error", message: MISSING_PODCAST_ID });
       return;
@@ -114,7 +118,7 @@ export function PodcastView({
 
   if (state.status === "loading") {
     return (
-      <div id={ROOT_ID} className="podcast-display" data-testid="podcast-display">
+      <div ref={anchorStyles} id={ROOT_ID} className="podcast-display" data-testid="podcast-display">
         <p className="podcast-display__status">Episode wird geladen …</p>
       </div>
     );
@@ -122,7 +126,7 @@ export function PodcastView({
 
   if (state.status === "error") {
     return (
-      <div id={ROOT_ID} className="podcast-display" data-testid="podcast-display">
+      <div ref={anchorStyles} id={ROOT_ID} className="podcast-display" data-testid="podcast-display">
         <p className="podcast-display__error" role="alert">
           {state.message}
         </p>
@@ -132,7 +136,7 @@ export function PodcastView({
 
   const { episode, title, date } = state;
   return (
-    <article id={ROOT_ID} className="podcast-display" data-testid="podcast-display">
+    <article ref={anchorStyles} id={ROOT_ID} className="podcast-display" data-testid="podcast-display">
       <PodcastPlayer episode={episode} title={title} date={date} size={playerSize} />
     </article>
   );

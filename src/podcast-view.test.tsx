@@ -15,6 +15,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 
 import { PodcastView } from "./podcast-view";
+import { STYLE_ELEMENT_ID } from "./styles";
 
 const PODCAST_ID = "6a6ae5e1d64a8c30f478a339";
 const EPISODE_ID = "8398abc1-c638-4175-bed1-e47809b22931";
@@ -66,6 +67,20 @@ describe("PodcastView", () => {
       expect.stringContaining(`/api/ai-podcast/${PODCAST_ID}/episode-audio`),
       expect.objectContaining({ credentials: "same-origin" }),
     );
+  });
+
+  // The Content Designer renders the page body into a shadow root, where a
+  // stylesheet in document.head does not apply.
+  it("puts its stylesheet into the shadow root it renders in", async () => {
+    mockFetch(() => new Promise(() => {}));
+    const host = document.body.appendChild(document.createElement("div"));
+    const shadow = host.attachShadow({ mode: "open" });
+    const container = shadow.appendChild(document.createElement("div"));
+
+    render(<PodcastView podcastId={PODCAST_ID} displayMode="latest" episodeId={null} />, { container });
+
+    expect(shadow.getElementById(STYLE_ELEMENT_ID)).not.toBeNull();
+    host.remove();
   });
 
   it("fetches a specific episode by id in specific mode", async () => {
