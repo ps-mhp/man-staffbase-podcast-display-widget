@@ -12,7 +12,7 @@
 // The MAN-CI podcast player, per the "Podcast Player" design handoff. Colour,
 // radius, spacing and type all come from the shared MAN tokens (see
 // `@shared/stylings/man-tokens`) rather than being retyped here — a value
-// changes in one place (`onetruck-css/src/tokens.scss`) and every widget
+// changes in one place (`man-theme/src/lib/_tokens.scss`) and every widget
 // using `man(...)` picks it up the next time this compiles, and at runtime
 // falls back to the same value if the tenant hasn't loaded the MAN theme at
 // all (preview, a different tenant, …).
