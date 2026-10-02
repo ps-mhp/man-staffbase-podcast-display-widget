@@ -9,14 +9,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// The MAN-CI podcast player, per the "Podcast Player" design handoff. Colour,
-// radius, spacing and type all come from the shared MAN tokens (see
-// `@shared/stylings/man-tokens`) rather than being retyped here — a value
-// changes in one place (`man-theme/src/lib/_tokens.scss`) and every widget
-// using `man(...)` picks it up the next time this compiles, and at runtime
-// falls back to the same value if the tenant hasn't loaded the MAN theme at
-// all (preview, a different tenant, …).
+// The MAN podcast player, per the "Podcast Player" design handoff, in the
+// look of Craft (the MAN Design System). Colour, radius, spacing and type all
+// come from the shared MAN tokens (see `@shared/stylings/man-tokens`), the
+// focus ring from `@shared/stylings/man-craft`, rather than being retyped
+// here — a value changes in one place (`man-theme/src/lib/_tokens.scss`) and
+// every widget using `man(...)` picks it up the next time this compiles, and
+// at runtime falls back to the same value if the tenant hasn't loaded the MAN
+// theme at all (preview, a different tenant, …).
 @use "@shared/stylings/man-tokens" as *;
+@use "@shared/stylings/man-craft" as *;
 
 // Every rule below is nested under this id — see `ROOT_ID` in `styles.ts`
 // for why: a host page's own, later-loaded or more specific CSS otherwise
@@ -38,8 +40,10 @@
     color: man("text-muted") !important;
   }
 
+  // Craft trennt Signal und Schrift: `error` (#CC0000) ist Rand und Signal,
+  // Fehlertext steht in `error-ink` (#990000).
   .podcast-display__error {
-    color: man("error") !important;
+    color: man("error-ink") !important;
   }
 
   // --- Player-Karte, beide Größen teilen sich Rahmen und Fläche -----------
@@ -83,11 +87,18 @@
     min-width: 0;
   }
 
+  // Gemischte Schreibung wie jede Craft-Überschrift — `man-type` setzt
+  // `text-transform: none` selbst. Schmal eine Stufe tiefer (h3 → h4), wie es
+  // die Craft-Skala mobil vorsieht: neben dem 204px-Cover bleibt dort wenig
+  // Spalte für 24px.
   .podcast-display__player--large .podcast-display__title {
     margin: 0 0 man("space-2");
     @include man-type("h3", $important: true);
     color: man("text") !important;
-    text-transform: uppercase !important;
+
+    @media (max-width: 767px) {
+      @include man-type("h4", $important: true);
+    }
   }
 
   .podcast-display__player--large .podcast-display__date {
@@ -132,8 +143,9 @@
     transition: background man("duration") man("ease");
   }
 
-  button.podcast-display__play:hover,
-  button.podcast-display__play:focus {
+  // Nur Hover färbt um. Fokus zeigt allein den Ring, wie Craft es vorsieht —
+  // früher sprang hier `:focus` mit ein, weil der Ring selbst nicht griff.
+  button.podcast-display__play:hover {
     background: man("red-hover") !important;
     background-image: none !important;
   }
@@ -143,9 +155,9 @@
     background-image: none !important;
   }
 
+  // `!important`: Staffbase nimmt den Ring teils per `outline: none` weg.
   button.podcast-display__play:focus-visible {
-    outline: man("focus");
-    outline-offset: man("focus-offset");
+    @include man-focus-ring($important: true);
   }
 
   .podcast-display__progress {
@@ -162,8 +174,7 @@
   }
 
   .podcast-display__track:focus-visible {
-    outline: man("focus");
-    outline-offset: man("focus-offset");
+    @include man-focus-ring($important: true);
   }
 
   .podcast-display__fill {
@@ -226,10 +237,10 @@
       color man("duration") man("ease");
   }
 
+  // Wie Kopfsymbole nach Craft: kein Hintergrund bei Hover, nur der Rand wird
+  // dunkler. Fokus zeigt allein den Ring.
   button.podcast-display__rate:hover,
-  button.podcast-display__mute:hover,
-  button.podcast-display__rate:focus,
-  button.podcast-display__mute:focus {
+  button.podcast-display__mute:hover {
     background: man("surface") !important;
     background-image: none !important;
     border-color: man("border-strong") !important;
@@ -238,8 +249,7 @@
 
   button.podcast-display__rate:focus-visible,
   button.podcast-display__mute:focus-visible {
-    outline: man("focus");
-    outline-offset: man("focus-offset");
+    @include man-focus-ring($important: true);
   }
 
   // --- KI-Kennzeichnung ------------------------------------------------------
@@ -253,7 +263,7 @@
     gap: man("space-1");
     flex: 0 0 auto;
     padding: 0 man("space-2");
-    border-radius: 999px;
+    border-radius: man("radius-pill");
     background: man("surface-sunken");
     color: man("text-muted");
     @include man-type("caption", $important: true);
