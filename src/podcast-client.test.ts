@@ -21,7 +21,7 @@ function episode(episodeId: string): Episode {
     episodeId,
     episodeTitle: `Episode ${episodeId}`,
     publishedAt: "2026-07-30T06:42:10.566886Z",
-    thumbnailUrl: "https://www.onetruck.man/thumb.jpg",
+    thumbnailUrl: "https://www.mti.man/thumb.jpg",
     url: `/api/ai-podcast/${PODCAST_ID}/episode-audio/${episodeId}/audio.mp3`,
   };
 }
@@ -93,7 +93,7 @@ describe("fetchEpisodesPage", () => {
                 episodeId: "a",
                 episodeTitle: "Episode a",
                 publishedAt: "2026-07-30T06:42:10.566886Z",
-                thumbnailUrl: "https://www.onetruck.man/thumb.jpg",
+                thumbnailUrl: "https://www.mti.man/thumb.jpg",
               },
             ],
           }),

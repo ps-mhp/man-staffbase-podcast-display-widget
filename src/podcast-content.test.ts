@@ -31,7 +31,7 @@ describe("readPodcastId", () => {
   });
 
   it("reads the id out of a pasted podcast url", () => {
-    expect(readPodcastId("https://www.onetruck.man/content/ai-podcast/6a6ae5e1d64a8c30f478a339")).toBe(
+    expect(readPodcastId("https://www.mti.man/content/ai-podcast/6a6ae5e1d64a8c30f478a339")).toBe(
       "6a6ae5e1d64a8c30f478a339",
     );
   });

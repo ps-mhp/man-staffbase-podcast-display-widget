@@ -24,7 +24,7 @@ const episode = {
   episodeId: EPISODE_ID,
   episodeTitle: "Ignition Podcast II",
   publishedAt: "2026-07-30T06:42:10.566886Z",
-  thumbnailUrl: "https://www.onetruck.man/thumb.jpg",
+  thumbnailUrl: "https://www.mti.man/thumb.jpg",
   url: `/api/ai-podcast/${PODCAST_ID}/episode-audio/${EPISODE_ID}/audio.mp3`,
   titleTranslations: { de_DE: "Zündung Podcast II", en_US: "Ignition Podcast II" },
 };
