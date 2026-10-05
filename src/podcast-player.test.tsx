@@ -103,6 +103,47 @@ describe("PodcastPlayer (large)", () => {
     expect(audio.currentTime).toBe(10);
   });
 
+  // The track wears the Craft slider look now; role, values and keyboard
+  // reach stay what they were.
+  it("keeps the slider's role, values and keyboard reach", () => {
+    stubAudio();
+    render(<PodcastPlayer episode={episode} title="Zündung" date="30.07.2026" size="large" />);
+
+    const track = screen.getByRole("slider", { name: "Wiedergabeposition" });
+    expect(track).toHaveAttribute("tabindex", "0");
+    expect(track).toHaveAttribute("aria-valuemin", "0");
+    expect(track).toHaveAttribute("aria-valuemax", "100");
+    expect(track).toHaveAttribute("aria-valuenow", "0");
+    expect(track).not.toHaveAttribute("aria-disabled");
+    expect(track).not.toHaveClass("podcast-display__track--thin");
+  });
+
+  it("toggles playback with Space and Enter on the track", () => {
+    const { play, pause } = stubAudio();
+    render(<PodcastPlayer episode={episode} title="Zündung" date="30.07.2026" size="large" />);
+
+    const track = screen.getByRole("slider", { name: "Wiedergabeposition" });
+    fireEvent.keyDown(track, { key: " " });
+    expect(play).toHaveBeenCalledTimes(1);
+    fireEvent.keyDown(track, { key: "Enter" });
+    expect(pause).toHaveBeenCalledTimes(1);
+  });
+
+  it("moves fill and handle along with playback", () => {
+    stubAudio();
+    render(<PodcastPlayer episode={episode} title="Zündung" date="30.07.2026" size="large" />);
+
+    const audio = document.querySelector("audio")!;
+    fireEvent.loadedMetadata(audio);
+    audio.currentTime = 30;
+    fireEvent.timeUpdate(audio);
+
+    const track = screen.getByRole("slider", { name: "Wiedergabeposition" });
+    expect(track).toHaveAttribute("aria-valuenow", "25");
+    expect(track.querySelector<HTMLElement>(".podcast-display__fill")?.style.width).toBe("25%");
+    expect(track.querySelector<HTMLElement>(".podcast-display__handle")?.style.left).toBe("25%");
+  });
+
   it("cycles the playback rate through 1x, 1.25x, 1.5x and 2x", () => {
     stubAudio();
     render(<PodcastPlayer episode={episode} title="Zündung" date="30.07.2026" size="large" />);
@@ -187,6 +228,21 @@ describe("PodcastPlayer (small)", () => {
     const audio = document.querySelector("audio")!;
     fireEvent.click(track, { clientX: 50 });
     expect(audio.currentTime).toBe(30); // a quarter of the stubbed 120s duration
+  });
+
+  // Same Craft track as the large player, but a bare strip: no handle, so the
+  // focus ring sits on the track itself (see styles.scss).
+  it("draws the thin track without a handle but with the same slider semantics", () => {
+    stubAudio();
+    render(<PodcastPlayer episode={episode} title="Zündung" date="30.07.2026" size="small" />);
+
+    const track = screen.getByRole("slider", { name: "Wiedergabeposition" });
+    expect(track).toHaveClass("podcast-display__track", "podcast-display__track--thin");
+    expect(track).toHaveAttribute("tabindex", "0");
+    expect(track).toHaveAttribute("aria-valuemin", "0");
+    expect(track).toHaveAttribute("aria-valuemax", "100");
+    expect(track.querySelector(".podcast-display__fill")).not.toBeNull();
+    expect(track.querySelector(".podcast-display__handle")).toBeNull();
   });
 });
 

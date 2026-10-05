@@ -20,6 +20,16 @@
 @use "@shared/stylings/man-tokens" as *;
 @use "@shared/stylings/man-craft" as *;
 
+// Fortschrittsbalken als Craft-Slider (`craft-slider`, man-theme
+// `analysis/craft/components-forms.md` §14): Spur 4px, Griff 20px.
+$slider-track-height: 4px;
+$slider-thumb-size: 20px;
+// Craft `slider-thumb-hover`/`-pressed`: red-50 bzw. red-100 mit 70 %
+// Deckkraft als Halo um den Griff. red-100 (#FAB7C6) hat keinen MAN-Token,
+// daher steht der Wert hier fest.
+$slider-halo-hover: man-alpha("red-50", 0.7);
+$slider-halo-pressed: rgba(250, 183, 198, 0.7);
+
 // Every rule below is nested under this id — see `ROOT_ID` in `styles.ts`
 // for why: a host page's own, later-loaded or more specific CSS otherwise
 // wins over a plain class selector, which is exactly what was happening
@@ -165,15 +175,48 @@
     min-width: 0;
   }
 
+  // --- Fortschritt als Craft-Slider ------------------------------------------
+  // Craft zeichnet den Slider auf ein natives Range-Input. Hier ist es ein
+  // eigenes `role="slider"`-Element (Klick und Tasten in `podcast-player.tsx`),
+  // das Bild verteilt sich also auf Spur, Füllung und Griff: Spur 4px, Radius
+  // 24px, #E5E5E5; gespielter Teil rot; Griff 20px rund, rot, ohne Rand;
+  // Halo bei Hover und gedrückt; gesperrt grau; Übergänge 100ms linear.
+  // Groß und kompakt teilen dieselbe Spur, nur der kompakten fehlt der Griff.
   .podcast-display__track {
     position: relative;
-    height: 4px;
-    background: man("border-subtle");
-    border-radius: man("radius");
+    height: $slider-track-height;
+    background: man("grey-200");
+    border-radius: man("radius-pill");
     cursor: pointer;
   }
 
+  // Trefferband: optisch ist die Spur 4px, geklickt und angetippt wird sie auf
+  // Griffhöhe (je 8px darüber und darunter). Klicks auf ein Pseudo-Element
+  // gehören zu seinem Element, und `seekToClick` misst weiter die Spur selbst
+  // — waagerecht bleibt das Band deshalb so breit wie sie.
+  .podcast-display__track::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: $slider-thumb-size;
+    transform: translateY(-50%);
+  }
+
+  // Ohne Griff (kompakt) trägt die Spur den Ring selbst. `!important`:
+  // Staffbase nimmt den Ring teils per `outline: none` weg.
   .podcast-display__track:focus-visible {
+    @include man-focus-ring($important: true);
+  }
+
+  // Mit Griff sitzt der Ring nach Craft am Griff, nicht um die ganze Spur —
+  // sonst stünden zwei Ringe ineinander.
+  .podcast-display__track:not(.podcast-display__track--thin):focus-visible {
+    outline: none !important;
+  }
+
+  .podcast-display__track:focus-visible .podcast-display__handle {
     @include man-focus-ring($important: true);
   }
 
@@ -182,24 +225,54 @@
     top: 0;
     left: 0;
     bottom: 0;
-    background: man("red");
-    border-radius: man("radius");
+    background-color: man("red");
+    border-radius: man("radius-pill");
+    transition: background-color man("duration") man("ease");
   }
 
   .podcast-display__handle {
     position: absolute;
     top: 50%;
-    width: 12px;
-    height: 12px;
-    background: man("red");
+    width: $slider-thumb-size;
+    height: $slider-thumb-size;
+    background-color: man("red");
+    border: 0;
     border-radius: man("radius-round");
+    box-shadow: none;
     transform: translate(-50%, -50%);
+    transition:
+      box-shadow man("duration") man("ease"),
+      background-color man("duration") man("ease");
   }
 
+  .podcast-display__track:hover .podcast-display__handle {
+    box-shadow: 0 0 1px 4px $slider-halo-hover;
+  }
+
+  .podcast-display__track:active .podcast-display__handle {
+    box-shadow: 0 0 1px 4px $slider-halo-pressed;
+  }
+
+  // Gesperrt nach Craft: Füllung und Griff #AFAFAF, kein Halo. Der Player
+  // setzt `aria-disabled` heute nie; die Regel hält das Craft-Bild für den
+  // Fall bereit. Sie steht nach Hover und gedrückt, damit sie bei gleicher
+  // Spezifität gewinnt.
+  .podcast-display__track[aria-disabled="true"] {
+    cursor: default;
+  }
+
+  .podcast-display__track[aria-disabled="true"] .podcast-display__fill,
+  .podcast-display__track[aria-disabled="true"] .podcast-display__handle {
+    background-color: man("grey-400");
+    box-shadow: none;
+  }
+
+  // 12px Luft unter der Spur wie bei Craft (`slider-marks-spacing-bottom`) —
+  // der 20px-Griff ragt 8px unter sie und stieße sonst an die Zeiten.
   .podcast-display__times {
     display: flex;
     justify-content: space-between;
-    margin-top: man("space-1");
+    margin-top: man("space-3");
     @include man-type("caption", $important: true);
     font-variant-numeric: tabular-nums;
     color: man("text-muted") !important;
@@ -338,6 +411,9 @@
     height: 44px !important;
   }
 
+  // Dieselbe Craft-Spur wie groß, nur ohne Griff (und damit ohne Halo). Die
+  // 8px Abstand nach oben fassen genau das Trefferband, es ragt nicht in die
+  // Zeile darüber.
   .podcast-display__track--thin {
     margin-top: man("space-2");
   }

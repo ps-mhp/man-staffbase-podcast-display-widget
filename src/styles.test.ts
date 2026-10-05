@@ -63,6 +63,7 @@ describe("podcast stylesheet after Craft", () => {
   it.each([
     `${ROOT} button.podcast-display__play:focus-visible`,
     `${ROOT} .podcast-display__track:focus-visible`,
+    `${ROOT} .podcast-display__track:focus-visible .podcast-display__handle`,
     `${ROOT} button.podcast-display__rate:focus-visible,\n${ROOT} button.podcast-display__mute:focus-visible`,
   ])("draws the focus ring as a valid outline on %s", (selector) => {
     const declarations = rule(selector);
@@ -81,5 +82,77 @@ describe("podcast stylesheet after Craft", () => {
   // Craft: focus changes nothing but the ring; only hover recolours.
   it("does not recolour the buttons on plain focus", () => {
     expect(PODCAST_DISPLAY_CSS).not.toMatch(/button\.podcast-display__(play|rate|mute):focus\s*[,{]/);
+  });
+});
+
+// Craft `craft-slider`, man-theme `analysis/craft/components-forms.md` §14.
+// The player draws it on its own `role="slider"` element, so the picture is
+// split over track, fill and handle.
+describe("progress bar as the Craft slider", () => {
+  const TRACK = `${ROOT} .podcast-display__track`;
+  const HANDLE = `${ROOT} .podcast-display__handle`;
+  const FILL = `${ROOT} .podcast-display__fill`;
+
+  it("draws a 4px pill track in grey 200", () => {
+    const declarations = rule(TRACK);
+    expect(declarations).toMatch(/height:\s*4px/);
+    expect(declarations).toMatch(/background:\s*var\(--man-grey-200, #e5e5e5\)/);
+    expect(declarations).toMatch(/border-radius:\s*var\(--man-radius-pill, 24px\)/);
+  });
+
+  it("fills the played part in MAN red", () => {
+    const declarations = rule(FILL);
+    expect(declarations).toMatch(/background-color:\s*var\(--man-red, #e40045\)/);
+    expect(declarations).toMatch(/border-radius:\s*var\(--man-radius-pill, 24px\)/);
+  });
+
+  it("draws a 20px round red handle without a border", () => {
+    const declarations = rule(HANDLE);
+    expect(declarations).toMatch(/width:\s*20px/);
+    expect(declarations).toMatch(/height:\s*20px/);
+    expect(declarations).toMatch(/background-color:\s*var\(--man-red, #e40045\)/);
+    expect(declarations).toMatch(/border-radius:\s*var\(--man-radius-round, 50%\)/);
+    expect(declarations).toMatch(/border:\s*0/);
+  });
+
+  it("shows the Craft halo on hover and while pressed, 100ms linear", () => {
+    expect(rule(`${ROOT} .podcast-display__track:hover .podcast-display__handle`)).toMatch(
+      /box-shadow:\s*0 0 1px 4px rgba\(253, 226, 232, 0\.7\)/,
+    );
+    expect(rule(`${ROOT} .podcast-display__track:active .podcast-display__handle`)).toMatch(
+      /box-shadow:\s*0 0 1px 4px rgba\(250, 183, 198, 0\.7\)/,
+    );
+    expect(rule(HANDLE)).toMatch(/transition:\s*box-shadow var\(--man-duration, 100ms\) var\(--man-ease, linear\)/);
+  });
+
+  it("greys fill and handle out when disabled, after the hover and pressed rules", () => {
+    const selector = `${TRACK}[aria-disabled=true] .podcast-display__fill,\n${TRACK}[aria-disabled=true] .podcast-display__handle`;
+    const declarations = rule(selector);
+    expect(declarations).toMatch(/background-color:\s*var\(--man-grey-400, #afafaf\)/);
+    expect(declarations).toMatch(/box-shadow:\s*none/);
+    expect(PODCAST_DISPLAY_CSS.indexOf(selector)).toBeGreaterThan(
+      PODCAST_DISPLAY_CSS.indexOf(`${TRACK}:active .podcast-display__handle`),
+    );
+  });
+
+  // Before the change the track was 4px and the handle 12px — the band to
+  // click or tap must not shrink below that, however thin the track looks.
+  it("keeps a hit band at least as tall as the old handle", () => {
+    const height = /height:\s*(\d+)px/.exec(rule(`${TRACK}::before`));
+    expect(height).not.toBeNull();
+    expect(Number(height![1])).toBeGreaterThanOrEqual(12);
+    expect(rule(`${TRACK}::before`)).toMatch(/left:\s*0;[\s\S]*right:\s*0/);
+  });
+
+  it("moves the focus ring from the track onto the handle where there is one", () => {
+    expect(rule(`${TRACK}:not(.podcast-display__track--thin):focus-visible`)).toMatch(/outline:\s*none\s*!important/);
+  });
+
+  it("gives the compact track the same picture, only spacing differs", () => {
+    expect(rule(`${TRACK}--thin`)).not.toMatch(/height|background|border-radius/);
+  });
+
+  it("leaves room under the track for the 20px handle", () => {
+    expect(rule(`${ROOT} .podcast-display__times`)).toMatch(/margin-top:\s*var\(--man-space-3, 12px\)/);
   });
 });
