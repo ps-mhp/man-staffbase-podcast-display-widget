@@ -97,10 +97,37 @@ $slider-halo-pressed: rgba(250, 183, 198, 0.7);
     min-width: 0;
   }
 
+  // Auf dem Telefon untereinander: neben dem 204px breiten Cover blieben von
+  // 393px Schirmbreite noch 109px für Titel, Datum und Bedienung — Titel
+  // umbrachen nach zwei Wörtern, die Abspielleiste stand gequetscht daneben
+  // (gemessen am 15.10.2026 bei 393x852). Gestapelt trägt das Cover die volle
+  // Spaltenbreite und bleibt quadratisch.
+  //
+  // Deckungsgleich mit dem Umbruch der Schriftstufe weiter unten.
+  @media (max-width: 767px) {
+    .podcast-display__player--large .podcast-display__header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .podcast-display__player--large .podcast-display__thumbnail {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+    }
+
+    // Gestapelt liegt die Bedienung ohnehin am Ende der Spalte; `margin-top:
+    // auto` hätte hier nichts mehr zu schieben, der Abstand kommt vom
+    // Polster.
+    .podcast-display__player--large .podcast-display__controls {
+      margin-top: 0;
+      padding-top: man("space-4");
+    }
+  }
+
   // Gemischte Schreibung wie jede Craft-Überschrift — `man-type` setzt
   // `text-transform: none` selbst. Schmal eine Stufe tiefer (h3 → h4), wie es
-  // die Craft-Skala mobil vorsieht: neben dem 204px-Cover bleibt dort wenig
-  // Spalte für 24px.
+  // die Craft-Skala mobil vorsieht.
   .podcast-display__player--large .podcast-display__title {
     margin: 0 0 man("space-2");
     @include man-type("h3", $important: true);
