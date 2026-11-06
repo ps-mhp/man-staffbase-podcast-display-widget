@@ -12,9 +12,24 @@
  */
 
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { act, render, screen, fireEvent } from "@testing-library/react";
+
+import { CONFIG_MODAL_HOST_ATTRIBUTE } from "@shared/ui/config-modal";
 
 import { PodcastAccessHelp } from "./podcast-access-help";
+
+/** The modal lives in its own shadow root and arrives lazily. */
+const modal = (testId = "podcast-access-help-modal"): HTMLElement | null =>
+  document.querySelector(`[${CONFIG_MODAL_HOST_ATTRIBUTE}]`)?.shadowRoot?.querySelector<HTMLElement>(
+    `[data-testid="${testId}"]`,
+  ) ?? null;
+
+async function openHelp(): Promise<void> {
+  fireEvent.click(screen.getByTestId("podcast-access-help-link"));
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+}
 
 describe("PodcastAccessHelp", () => {
   afterEach(() => document.documentElement.removeAttribute("lang"));
@@ -24,29 +39,45 @@ describe("PodcastAccessHelp", () => {
     render(<PodcastAccessHelp />);
 
     expect(screen.getByTestId("podcast-access-help-link")).toHaveTextContent("Podcast nicht auffindbar?");
-    expect(screen.queryByTestId("podcast-access-help-modal")).not.toBeInTheDocument();
+    expect(modal()).toBeNull();
   });
 
-  it("opens the modal with the reader's language and closes it again", () => {
+  it("opens the modal with the reader's language and closes it again", async () => {
     document.documentElement.setAttribute("lang", "fr-FR");
     render(<PodcastAccessHelp />);
 
-    fireEvent.click(screen.getByTestId("podcast-access-help-link"));
+    await openHelp();
 
-    const modal = screen.getByTestId("podcast-access-help-modal");
-    expect(modal).toHaveTextContent("Podcast introuvable ?");
-    expect(modal).toHaveTextContent("Space");
+    expect(modal()).toHaveTextContent("Podcast introuvable ?");
+    expect(modal()).toHaveTextContent("Space");
 
-    fireEvent.click(screen.getByTestId("podcast-access-help-close"));
-    expect(screen.queryByTestId("podcast-access-help-modal")).not.toBeInTheDocument();
+    await act(async () => {
+      modal("podcast-access-help-close")!.click();
+    });
+    expect(modal()).toBeNull();
   });
 
-  it("falls back to English for a language outside the dictionary", () => {
+  it("falls back to English for a language outside the dictionary", async () => {
     document.documentElement.setAttribute("lang", "xx-XX");
     render(<PodcastAccessHelp />);
 
-    fireEvent.click(screen.getByTestId("podcast-access-help-link"));
+    await openHelp();
 
-    expect(screen.getByTestId("podcast-access-help-modal")).toHaveTextContent("Podcast missing?");
+    expect(modal()).toHaveTextContent("Podcast missing?");
+  });
+
+  it("puts the modal into the dialog around the link", async () => {
+    const showPopover = jest.fn();
+    Object.defineProperty(HTMLElement.prototype, "showPopover", { value: showPopover, configurable: true });
+    render(
+      <div role="dialog">
+        <PodcastAccessHelp />
+      </div>,
+    );
+
+    await openHelp();
+
+    expect(document.querySelector(`[role="dialog"] > [${CONFIG_MODAL_HOST_ATTRIBUTE}]`)).not.toBeNull();
+    delete (HTMLElement.prototype as Partial<HTMLElement>).showPopover;
   });
 });

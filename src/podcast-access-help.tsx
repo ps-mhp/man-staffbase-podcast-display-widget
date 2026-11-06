@@ -11,12 +11,14 @@
  * limitations under the License.
  */
 
-import React, { useState } from "react";
-
-import { ConfigModal } from "@shared/config-modal";
+import React, { Suspense, useRef, useState } from "react";
 
 import { documentLocales } from "./podcast-content";
 import { pickPodcastAccessHelpText } from "./podcast-access-help-translations";
+
+const LazyPodcastAccessHelpModal = React.lazy(() =>
+  import("./podcast-access-help-modal").then((module) => ({ default: module.PodcastAccessHelpModal })),
+);
 
 const linkStyle: React.CSSProperties = {
   display: "inline-block",
@@ -31,44 +33,6 @@ const linkStyle: React.CSSProperties = {
   cursor: "pointer",
 };
 
-/** The episode-picker's own trigger: red rather than blue, so a real problem
- * with the currently selected podcast reads as a warning, not a footnote. */
-const warningLinkStyle: React.CSSProperties = {
-  ...linkStyle,
-  color: "#dc2626",
-  fontWeight: 600,
-};
-
-/** Small and content-sized — `ConfigModal`'s own default fits a full editor. */
-const panelStyle: React.CSSProperties = {
-  width: "min(480px, 90vw)",
-  height: "auto",
-  maxHeight: "80vh",
-};
-
-const bodyStyle: React.CSSProperties = {
-  display: "block",
-  overflow: "auto",
-};
-
-const paragraphStyle: React.CSSProperties = {
-  margin: "0 0 12px",
-  fontSize: "13px",
-  lineHeight: 1.5,
-  color: "#374151",
-};
-
-const closeButtonStyle: React.CSSProperties = {
-  marginTop: "4px",
-  border: "1px solid #d1d5db",
-  borderRadius: "4px",
-  background: "#fff",
-  color: "#111827",
-  padding: "8px 16px",
-  fontSize: "13px",
-  cursor: "pointer",
-};
-
 /**
  * The "podcast missing?" link next to the podcast picker, and the modal it
  * opens.
@@ -78,33 +42,30 @@ const closeButtonStyle: React.CSSProperties = {
  * — a correct but, on its own, unexplained gap in the list. This is that
  * explanation, in the author's own language rather than the widget's German
  * default (see `podcast-access-help-translations.ts`).
+ *
+ * The link sits in the Studio's form, next to a native select, and keeps its
+ * inline style like the picker beside it; the modal is `@shared/ui`.
  */
 export function PodcastAccessHelp(): React.JSX.Element {
   const [open, setOpen] = useState(false);
+  const linkRef = useRef<HTMLButtonElement>(null);
   const text = pickPodcastAccessHelpText(documentLocales());
 
   return (
     <>
-      <button type="button" style={linkStyle} onClick={() => setOpen(true)} data-testid="podcast-access-help-link">
+      <button
+        ref={linkRef}
+        type="button"
+        style={linkStyle}
+        onClick={() => setOpen(true)}
+        data-testid="podcast-access-help-link"
+      >
         {text.linkText}
       </button>
       {open && (
-        <ConfigModal testId="podcast-access-help-modal" panelStyle={panelStyle} bodyStyle={bodyStyle}>
-          <h3 style={{ marginTop: 0, fontSize: "16px", color: "#111827" }}>{text.title}</h3>
-          {text.body.map((paragraph, index) => (
-            <p key={index} style={paragraphStyle}>
-              {paragraph}
-            </p>
-          ))}
-          <button
-            type="button"
-            style={closeButtonStyle}
-            onClick={() => setOpen(false)}
-            data-testid="podcast-access-help-close"
-          >
-            {text.close}
-          </button>
-        </ConfigModal>
+        <Suspense fallback={null}>
+          <LazyPodcastAccessHelpModal text={text} within={linkRef.current} onClose={() => setOpen(false)} />
+        </Suspense>
       )}
     </>
   );
