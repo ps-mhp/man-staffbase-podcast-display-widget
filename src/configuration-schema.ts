@@ -14,24 +14,57 @@
 import { UiSchema } from "@rjsf/utils";
 import { JSONSchema7 } from "json-schema";
 
+// The names the configuration goes by.
+//
+// Each has to be spelled the same in three places: the key in the
+// configuration schema, the attribute declared to the host, and the name
+// read back by the view. They are also the attributes registered for this
+// widget in `widgets.json`: the host saves a value under its schema key
+// verbatim and reads it back off the element under the declared attribute
+// name, and it drops an attribute it was never told about.
+
+/** Die ganze Konfiguration in einem Feld — siehe `podcast-config.ts`. */
+export const PODCAST_CONFIG_ATTRIBUTE = "podcast-config";
+export const PODCAST_ID_ATTRIBUTE = "podcast-id";
+export const DISPLAY_MODE_ATTRIBUTE = "display-mode";
+export const EPISODE_ID_ATTRIBUTE = "episode-id";
+export const PLAYER_SIZE_ATTRIBUTE = "player-size";
+
+/**
+ * Die einzelnen Felder bis 0.4.0-rc.3. Sie stehen weiter im Schema, damit der
+ * Dialog ihre Werte führt: beim ersten Übernehmen im Fenster wandern sie nach
+ * `podcast-config`. Zu sehen sind sie im eigenen Dialog nicht mehr
+ * (`legacy-fields.ts`).
+ */
+export const LEGACY_ATTRIBUTES = [
+  PODCAST_ID_ATTRIBUTE,
+  DISPLAY_MODE_ATTRIBUTE,
+  EPISODE_ID_ATTRIBUTE,
+  PLAYER_SIZE_ATTRIBUTE,
+] as const;
+
 /**
  * Schema for the widget's configuration dialog.
  *
- * The keys are byte-identical to `PODCAST_ID_ATTRIBUTE`, `DISPLAY_MODE_ATTRIBUTE`
- * and `EPISODE_ID_ATTRIBUTE` in `index.tsx`, and to the attributes registered
- * in `widgets.json`: the host saves a value under its schema key verbatim and
- * reads it back off the element under the declared attribute name, and it
- * drops an attribute it was never told about.
+ * Zu sehen ist nur `podcast-config`: an seine Stelle tritt der Knopf zum
+ * Fenster „Podcast einstellen“, in dem alles gepflegt wird
+ * (`podcast-dialog.ts`). Die übrigen Felder sind die der Fassungen bis
+ * 0.4.0-rc.3.
  *
  * @see https://rjsf-team.github.io/react-jsonschema-form/docs/
  */
 export const configurationSchema: JSONSchema7 = {
   properties: {
-    "podcast-id": {
+    [PODCAST_CONFIG_ATTRIBUTE]: {
+      type: "string",
+      title: "Podcast-Anzeige",
+      default: "",
+    },
+    [PODCAST_ID_ATTRIBUTE]: {
       type: "string",
       title: "Podcast-ID",
     },
-    "display-mode": {
+    [DISPLAY_MODE_ATTRIBUTE]: {
       type: "string",
       title: "Anzeigemodus",
       default: "latest",
@@ -40,11 +73,11 @@ export const configurationSchema: JSONSchema7 = {
         { const: "specific", title: "Bestimmte Episode" },
       ],
     },
-    "episode-id": {
+    [EPISODE_ID_ATTRIBUTE]: {
       type: "string",
       title: "Episode-ID",
     },
-    "player-size": {
+    [PLAYER_SIZE_ATTRIBUTE]: {
       type: "string",
       title: "Player-Größe",
       default: "large",
@@ -56,22 +89,16 @@ export const configurationSchema: JSONSchema7 = {
   },
 };
 
+/** Alle Attribute, in der Reihenfolge des Schemas. */
+export const ALL_ATTRIBUTES: string[] = Object.keys(configurationSchema.properties ?? {});
+
 /**
  * @see https://rjsf-team.github.io/react-jsonschema-form/docs/api-reference/uiSchema
  */
 export const uiSchema: UiSchema = {
-  "podcast-id": {
+  [PODCAST_CONFIG_ATTRIBUTE]: {
     "ui:help":
-      "ID des Podcasts aus Staffbase — die 24-stellige Zeichenfolge am Ende der Podcast-URL. " +
-      "Die vollständige URL kann ebenfalls eingefügt werden.",
-  },
-  "episode-id": {
-    "ui:help":
-      'Nur im Modus "Bestimmte Episode" verwendet. Die Episode-ID oder die vollständige URL der Audiodatei.',
-  },
-  "player-size": {
-    "ui:help":
-      "Groß: Cover, Titel, Datum und volle Steuerung (Geschwindigkeit, Stummschalten). " +
-      "Kompakt: schmale Kachel für Feeds und schmale Spalten, nur Play und Fortschritt.",
+      "Podcast, Episode und Player werden im Fenster „Podcast einstellen“ gepflegt; " +
+      "das Textfeld dahinter ist die Rohfassung.",
   },
 };

@@ -11,15 +11,23 @@
  * limitations under the License.
  */
 
-/** Copy for the "podcast missing?" link and the modal it opens. */
+/**
+ * Copy for the "podcast missing?" explanation.
+ *
+ * Seit dem Fenster „Podcast einstellen“ steht sie aufklappbar unten in dessen
+ * Seitenleiste (`podcast-sidebar.tsx`) statt hinter einem Link im Dialog;
+ * `episodesUnavailableLabel` und `close` braucht dort niemand mehr. Sie
+ * bleiben, solange die Übersetzungen ohnehin gepflegt werden – ein Feld
+ * weniger hieße acht Sprachen anfassen.
+ */
 export interface PodcastAccessHelpText {
   /** The link shown under the podcast picker. */
   linkText: string;
   /**
    * The red warning link shown next to the episode picker's own "could not
-   * load" notice, without the leading "⚠" — the icon is added in code (see
-   * `podcast-access-help.tsx`) rather than baked into every translation, since
-   * it is not language-specific.
+   * load" notice, without the leading "⚠" — the icon was added in code
+   * rather than baked into every translation, since it is not
+   * language-specific.
    */
   episodesUnavailableLabel: string;
   /** The modal's heading. */

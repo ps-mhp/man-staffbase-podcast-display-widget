@@ -12,50 +12,40 @@
  */
 
 import {
+  PODCAST_CONFIG_ATTRIBUTE,
   PODCAST_ID_ATTRIBUTE,
   DISPLAY_MODE_ATTRIBUTE,
   EPISODE_ID_ATTRIBUTE,
   PLAYER_SIZE_ATTRIBUTE,
-  stopPodcastPickerInjector,
-  stopEpisodePickerInjector,
-  stopEpisodeVisibilityToggle,
 } from "./index";
 import { configurationSchema, uiSchema } from "./configuration-schema";
+
+const ATTRIBUTES = [
+  PODCAST_CONFIG_ATTRIBUTE,
+  PODCAST_ID_ATTRIBUTE,
+  DISPLAY_MODE_ATTRIBUTE,
+  EPISODE_ID_ATTRIBUTE,
+  PLAYER_SIZE_ATTRIBUTE,
+];
 
 describe("widget attributes", () => {
   it("are exactly the keys the configuration schema stores under", () => {
     // The host writes each configuration value under the schema key
     // verbatim and reads it back under the declared attribute. Any
     // difference — even only in case — puts the value where nothing looks.
-    expect(Object.keys(configurationSchema.properties!).sort()).toEqual(
-      [PODCAST_ID_ATTRIBUTE, DISPLAY_MODE_ATTRIBUTE, EPISODE_ID_ATTRIBUTE, PLAYER_SIZE_ATTRIBUTE].sort(),
-    );
-    for (const attribute of [PODCAST_ID_ATTRIBUTE, DISPLAY_MODE_ATTRIBUTE, EPISODE_ID_ATTRIBUTE, PLAYER_SIZE_ATTRIBUTE]) {
+    expect(Object.keys(configurationSchema.properties!).sort()).toEqual([...ATTRIBUTES].sort());
+    for (const attribute of ATTRIBUTES) {
       expect(attribute).toBe(attribute.toLowerCase());
     }
   });
 
-  it("are exactly the keys the dialog's ui hints are filed under", () => {
-    expect(Object.keys(uiSchema).sort()).toEqual(
-      [PODCAST_ID_ATTRIBUTE, EPISODE_ID_ATTRIBUTE, PLAYER_SIZE_ATTRIBUTE].sort(),
-    );
+  // Editoren hängen sich über `root_<Attribut>` ein, ohne das Widget zu
+  // kennen; `config` hat schon das Hotspot-Widget.
+  it("names the one configuration attribute after the widget", () => {
+    expect(PODCAST_CONFIG_ATTRIBUTE).toBe("podcast-config");
   });
-});
 
-describe("entity pickers", () => {
-  it("start watching for their configuration fields from module load on", () => {
-    // Exported only so a test can dispose of the observer between files;
-    // production code never calls this.
-    expect(typeof stopPodcastPickerInjector).toBe("function");
-    expect(typeof stopEpisodePickerInjector).toBe("function");
-    stopPodcastPickerInjector();
-    stopEpisodePickerInjector();
-  });
-});
-
-describe("episode field visibility", () => {
-  it("starts watching the display-mode field from module load on", () => {
-    expect(typeof stopEpisodeVisibilityToggle).toBe("function");
-    stopEpisodeVisibilityToggle();
+  it("explains only the configuration field in the dialog; the old fields are hidden", () => {
+    expect(Object.keys(uiSchema)).toEqual([PODCAST_CONFIG_ATTRIBUTE]);
   });
 });
