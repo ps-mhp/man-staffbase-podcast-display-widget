@@ -12,16 +12,23 @@
  */
 
 /**
- * Die Abschnitte der Hauptfläche: Anzeige, Player und – zugeklappt – die
- * Eingabe einer ID von Hand.
+ * Die Teile des Formulars: Kopf mit dem gewählten Podcast, die Abschnitte
+ * Anzeige und Player und – zugeklappt – die Eingabe einer ID von Hand.
  *
- * Podcast und Episode werden links im Baum gewählt; hier stehen sie nur zum
- * Ablesen, damit man auch in einer Geräteansicht sieht, was gilt. Die Eingabe
- * von Hand ist der Ausweg, den der Dialog schon bisher bot: lädt die Liste
- * nicht, lässt sich die ID oder die ganze Adresse einfügen.
+ * Aufgebaut wie im Screen: Podcast und Episode werden links im Baum gewählt,
+ * hier stehen sie nur zum Ablesen – der Podcast als Überschrift, die Episode
+ * als Hinweis. Kleine Wahlen sind Pills mit Label darüber, inhaltsbreit.
+ *
+ * Dieselben Abschnitte stehen in den Geräteansichten im Inspektor, dort
+ * knapp (`detailed={false}`): ohne Hinweise, denn die Vorschau daneben zeigt,
+ * was gilt. Fehler nach gescheitertem „Übernehmen“ stehen in beiden.
+ *
+ * Die Eingabe von Hand ist der Ausweg, den der Dialog schon bisher bot: lädt
+ * die Liste nicht, lässt sich die ID oder die ganze Adresse einfügen.
  */
 
 import * as React from "react";
+import { Play, TriangleAlert } from "lucide-react";
 import { Field } from "@man/config-ui/form/field";
 import { FormSection } from "@man/config-ui/form/form-section";
 import { Segmented, SegmentedOption } from "@man/config-ui/form/segmented";
@@ -43,6 +50,13 @@ const SIZE_OPTIONS: readonly SegmentedOption<PodcastPlayerSize>[] = [
   { id: "small", label: "Kompakt" },
 ];
 
+const SIZE_HINT =
+  "Groß zeigt Cover, Titel, Datum und volle Steuerung, Kompakt eine schmale Kachel mit Play und Fortschritt – für Feeds und schmale Spalten.";
+
+/** Beschriftung eines Felds ohne `<label>`, wie bei `Field`. */
+const LABEL = "text-[13px] font-semibold text-foreground";
+const HINT = "text-[13px] text-muted-foreground";
+
 export interface SectionProps {
   value: PodcastConfig;
   onChange: (value: PodcastConfig) => void;
@@ -55,38 +69,134 @@ function useIssue(value: PodcastConfig, id: string): string | undefined {
   return validatePodcastConfig(value).find((issue) => issue.id === id)?.message;
 }
 
-export interface DisplaySectionProps extends SectionProps {
-  /** Titel des gewählten Podcasts, sonst seine ID; leer ohne Wahl. */
-  podcastLabel: string;
-  /** Titel der gewählten Episode, sonst ihre ID; leer ohne Wahl. */
-  episodeLabel: string;
+/** Eine Meldung wie die von `Field`: Symbol und Text, vorgelesen, sobald sie erscheint. */
+function IssueText({ children }: { children: React.ReactNode }): React.ReactElement {
+  return (
+    <p role="alert" className="flex items-start gap-1.5 text-[13px] text-destructive">
+      <TriangleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+      <span>{children}</span>
+    </p>
+  );
 }
 
-export function DisplaySection({ value, onChange, podcastLabel, episodeLabel }: DisplaySectionProps): React.ReactElement {
+interface PillFieldProps<T extends string> {
+  label: string;
+  options: readonly SegmentedOption<T>[];
+  value: T;
+  onChange: (value: T) => void;
+  hint?: string;
+}
+
+/** Label, Pills und Hinweis; die Pills nur so breit wie ihr Inhalt. */
+function PillField<T extends string>({ label, options, value, onChange, hint }: PillFieldProps<T>): React.ReactElement {
+  const hintId = `${React.useId()}-hint`;
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className={LABEL}>{label}</span>
+      <Segmented
+        aria-label={label}
+        aria-describedby={hint === undefined ? undefined : hintId}
+        options={options}
+        value={value}
+        onChange={onChange}
+        className="flex-wrap self-start"
+      />
+      {hint !== undefined && (
+        <p id={hintId} className={HINT}>
+          {hint}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export interface PodcastHeadingProps {
+  value: PodcastConfig;
+  /** Titel des gewählten Podcasts, sonst seine ID. */
+  title: string;
+  /** Die Zeile daneben, etwa „Podcast · links gewählt“. */
+  kicker: string;
+}
+
+/** Der Kopf des Formulars: welcher Podcast gilt. Ohne Wahl sagt er, wo man wählt. */
+export function PodcastHeading({ value, title, kicker }: PodcastHeadingProps): React.ReactElement {
+  const issue = useIssue(value, PODCAST_ISSUE);
+  const chosen = value.podcastId !== "";
+  return (
+    <div className="flex flex-col gap-1.5" data-testid="podcast-heading">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <h2 className="text-xl leading-[1.3] font-semibold text-foreground">{chosen ? title : "Noch kein Podcast gewählt"}</h2>
+        <span className={HINT}>{chosen ? kicker : "Podcast links in der Liste wählen"}</span>
+      </div>
+      {issue !== undefined && <IssueText>{issue}</IssueText>}
+    </div>
+  );
+}
+
+/** Die gewählte Episode zum Ablesen; gewählt wird sie links im Baum. */
+function EpisodeNote({ label, issue }: { label: string; issue: string | undefined }): React.ReactElement {
+  const labelId = `${React.useId()}-label`;
+  const chosen = label !== "";
+  return (
+    <div role="group" aria-labelledby={labelId} className="flex flex-col gap-1.5">
+      <span id={labelId} className={LABEL}>
+        Episode
+      </span>
+      <p
+        data-testid="podcast-episode-note"
+        className="flex items-start gap-2.5 rounded-md bg-secondary px-3.5 py-3 text-[13px] leading-normal text-muted-foreground"
+      >
+        <Play className="mt-0.5 size-4 shrink-0" aria-hidden />
+        <span>
+          <strong className="font-semibold text-foreground">{chosen ? label : "Noch keine Episode gewählt"}</strong>
+          <br />
+          {chosen
+            ? "In der Liste links gewählt. „Neueste Episode“ wechselt von selbst, sobald eine neue Folge erscheint."
+            : "Episode links in der Liste wählen."}
+        </span>
+      </p>
+      {issue !== undefined && <IssueText>{issue}</IssueText>}
+    </div>
+  );
+}
+
+export interface DisplaySectionProps extends SectionProps {
+  /** Titel der gewählten Episode, sonst ihre ID; leer ohne Wahl. */
+  episodeLabel: string;
+  /** Im Formular mit Episode als Hinweis; im Inspektor nur die Wahl. */
+  detailed: boolean;
+}
+
+export function DisplaySection({ value, onChange, episodeLabel, detailed }: DisplaySectionProps): React.ReactElement {
   const podcastIssue = useIssue(value, PODCAST_ISSUE);
   const episodeIssue = useIssue(value, EPISODE_ISSUE);
+  const specific = value.mode === "specific";
   return (
     <FormSection title="Anzeige">
-      <Field label="Podcast" required error={podcastIssue} hint={podcastLabel === "" ? "Podcast links in der Liste wählen" : undefined}>
-        <Input readOnly value={podcastLabel} placeholder="Noch kein Podcast gewählt" />
-      </Field>
-      <Segmented aria-label="Welche Episode" options={MODE_OPTIONS} value={value.mode} onChange={(mode) => onChange({ ...value, mode })} />
-      {value.mode === "specific" && (
-        <Field label="Episode" required error={episodeIssue} hint={episodeLabel === "" ? "Episode links in der Liste wählen" : undefined}>
-          <Input readOnly value={episodeLabel} placeholder="Noch keine Episode gewählt" />
-        </Field>
-      )}
+      {/* Im Formular nennt der Kopf den fehlenden Podcast; im Inspektor gibt es keinen. */}
+      {!detailed && podcastIssue !== undefined && <IssueText>{podcastIssue}</IssueText>}
+      <PillField label="Welche Episode" options={MODE_OPTIONS} value={value.mode} onChange={(mode) => onChange({ ...value, mode })} />
+      {specific && detailed && <EpisodeNote label={episodeLabel} issue={episodeIssue} />}
+      {specific && !detailed && episodeIssue !== undefined && <IssueText>{episodeIssue}</IssueText>}
     </FormSection>
   );
 }
 
-export function PlayerSection({ value, onChange }: SectionProps): React.ReactElement {
+export interface PlayerSectionProps extends SectionProps {
+  /** Im Formular mit Hinweis, was die Größen zeigen. */
+  detailed: boolean;
+}
+
+export function PlayerSection({ value, onChange, detailed }: PlayerSectionProps): React.ReactElement {
   return (
-    <FormSection
-      title="Player"
-      description="Groß: Cover, Titel, Datum und volle Steuerung. Kompakt: schmale Kachel mit Play und Fortschritt, für Feeds und schmale Spalten."
-    >
-      <Segmented aria-label="Player-Größe" options={SIZE_OPTIONS} value={value.size} onChange={(size) => onChange({ ...value, size })} />
+    <FormSection title="Player">
+      <PillField
+        label="Größe"
+        options={SIZE_OPTIONS}
+        value={value.size}
+        onChange={(size) => onChange({ ...value, size })}
+        hint={detailed ? SIZE_HINT : undefined}
+      />
     </FormSection>
   );
 }
@@ -109,7 +219,7 @@ function IdField({ label, current, read, onValid }: IdFieldProps): React.ReactEl
   };
   return (
     <Field label={label} error={unreadable ? "Keine gültige ID erkannt" : undefined} hint={`Aktuell: ${current ?? "–"}`}>
-      <Input value={text} onChange={handleChange} placeholder="ID oder Adresse einfügen" />
+      <Input className="h-10" value={text} onChange={handleChange} placeholder="ID oder Adresse einfügen" />
     </Field>
   );
 }

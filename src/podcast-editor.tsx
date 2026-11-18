@@ -13,8 +13,8 @@
 
 /**
  * Der Rumpf des Fensters „Podcast einstellen“ im gemeinsamen Rahmen von
- * `@man/config-ui`: links der Baum, in der Mitte Anzeige und Player, in den
- * Geräteansichten die Vorschau.
+ * `@man/config-ui`: links der Baum, in der Mitte das Formular – Kopf mit dem
+ * gewählten Podcast, Anzeige, Player –, in den Geräteansichten die Vorschau.
  *
  * Nur im Studio nachgeladen (`podcast-dialog.tsx`): er bringt react-aria und
  * Tailwind mit, und das hat im Seitenbündel, das jede Leserin lädt, nichts
@@ -27,7 +27,7 @@ import { ConfigWorkspace } from "@man/config-ui/layout/config-workspace";
 import { DEFAULT_CATALOG_LOADERS, PodcastCatalog, PodcastCatalogLoaders, usePodcastCatalog } from "./podcast-catalog-state";
 import type { PodcastConfig } from "./podcast-config";
 import { documentLocales } from "./podcast-content";
-import { DisplaySection, ManualIdsSection, PlayerSection } from "./podcast-editor-sections";
+import { DisplaySection, ManualIdsSection, PlayerSection, PodcastHeading } from "./podcast-editor-sections";
 import { PodcastPreview } from "./podcast-preview";
 import { PodcastSidebar } from "./podcast-sidebar";
 import { applyTreeTarget, episodeTitle, parseNodeId, podcastNodeId } from "./podcast-tree";
@@ -88,8 +88,22 @@ function useTreeNavigation(value: PodcastConfig, onChange: (value: PodcastConfig
   return { expandedIds, expand, select };
 }
 
-/** Was in den Feldern zum Ablesen steht: Titel, wo bekannt, sonst die ID. */
-function useLabels(value: PodcastConfig, catalog: PodcastCatalog): { podcastLabel: string; episodeLabel: string } {
+interface Labels {
+  /** Titel des gewählten Podcasts, sonst seine ID. */
+  podcastTitle: string;
+  /** Woher der Podcast kommt, für die Zeile neben dem Titel. */
+  podcastKicker: string;
+  /** Titel der gewählten Episode, sonst ihre ID; leer ohne Wahl. */
+  episodeLabel: string;
+}
+
+function kickerOf(catalog: PodcastCatalog, listed: boolean): string {
+  if (catalog.podcasts.status !== "ready") return "Podcast";
+  return listed ? "Podcast · links gewählt" : "Podcast · nicht in der Liste";
+}
+
+/** Was im Formular zum Ablesen steht: Titel, wo bekannt, sonst die ID. */
+function useLabels(value: PodcastConfig, catalog: PodcastCatalog): Labels {
   const { podcasts, episodes } = catalog;
   const locales = React.useMemo(() => documentLocales(), []);
   const podcast = podcasts.status === "ready" ? podcasts.value.find((option) => option.id === value.podcastId) : undefined;
@@ -97,7 +111,8 @@ function useLabels(value: PodcastConfig, catalog: PodcastCatalog): { podcastLabe
   const episode =
     load?.status === "ready" ? load.value.episodes.find((item) => item.episodeId === value.episodeId) : undefined;
   return {
-    podcastLabel: podcast?.title ?? value.podcastId,
+    podcastTitle: podcast?.title ?? value.podcastId,
+    podcastKicker: kickerOf(catalog, podcast !== undefined),
     episodeLabel: episode === undefined ? (value.episodeId ?? "") : episodeTitle(episode, locales),
   };
 }
@@ -120,9 +135,10 @@ export function PodcastEditor({ value, onChange, loaders = DEFAULT_CATALOG_LOADE
       }
       preview={<PodcastPreview config={value} />}
     >
-      <div className="flex max-w-[720px] flex-col gap-8 p-6" data-testid="podcast-editor">
-        <DisplaySection value={value} onChange={onChange} {...labels} />
-        <PlayerSection value={value} onChange={onChange} />
+      <div className="flex max-w-[720px] flex-col gap-8 px-10 pt-6 pb-12" data-testid="podcast-editor">
+        <PodcastHeading value={value} title={labels.podcastTitle} kicker={labels.podcastKicker} />
+        <DisplaySection value={value} onChange={onChange} episodeLabel={labels.episodeLabel} detailed />
+        <PlayerSection value={value} onChange={onChange} detailed />
         <ManualIdsSection value={value} onChange={onChange} />
       </div>
     </ConfigWorkspace>

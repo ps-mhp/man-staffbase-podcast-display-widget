@@ -85,8 +85,8 @@ async function renderEditor(initial: PodcastConfig = EMPTY, catalog = loaders())
 
 const row = (name: RegExp | string): HTMLElement => screen.getByRole("row", { name });
 const tree = (): HTMLElement => screen.getByRole("treegrid", { name: "Podcasts" });
-const field = (label: "Podcast" | "Episode"): HTMLElement =>
-  screen.getByRole("textbox", { name: `${label} (Pflichtfeld)` });
+const heading = (): HTMLElement => screen.getByTestId("podcast-heading");
+const episodeNote = (): HTMLElement => screen.getByTestId("podcast-episode-note");
 
 describe("PodcastEditor – Baum", () => {
   it("zeigt die Podcasts als Ordner und lädt noch keine Episoden", async () => {
@@ -117,7 +117,9 @@ describe("PodcastEditor – Baum", () => {
 
     expect(onChange).toHaveBeenLastCalledWith({ podcastId: A, mode: "specific", episodeId: E2, size: "large" });
     expect(row(/Folge 2/)).toHaveAttribute("aria-selected", "true");
-    expect(field("Episode")).toHaveValue("Folge 2");
+    expect(screen.getByRole("group", { name: "Episode" })).toContainElement(episodeNote());
+    expect(episodeNote()).toHaveTextContent("Folge 2");
+    expect(episodeNote()).toHaveTextContent("In der Liste links gewählt.");
   });
 
   it("setzt beim Wählen eines Podcasts nur die ID, klappt ihn auf und lädt seine Episoden", async () => {
@@ -129,7 +131,8 @@ describe("PodcastEditor – Baum", () => {
     expect(catalog.loadEpisodes).toHaveBeenCalledWith(B);
     expect(row(/Technik-Talk/)).toHaveAttribute("aria-expanded", "true");
     expect(row(/Noch keine Episoden/)).toBeInTheDocument();
-    expect(field("Podcast")).toHaveValue("Technik-Talk");
+    expect(within(heading()).getByRole("heading", { level: 2 })).toHaveTextContent("Technik-Talk");
+    expect(heading()).toHaveTextContent("Podcast · links gewählt");
   });
 
   it("lässt einen Podcast aus einem anderen Space nicht wählen", async () => {
@@ -206,14 +209,27 @@ describe("PodcastEditor – Laden und Fehler", () => {
 });
 
 describe("PodcastEditor – Formular", () => {
-  it("schaltet Modus und Player-Größe um", async () => {
+  it("sagt ohne Podcast, wo man ihn wählt", async () => {
+    await renderEditor();
+
+    expect(within(heading()).getByRole("heading", { level: 2 })).toHaveTextContent("Noch kein Podcast gewählt");
+    expect(heading()).toHaveTextContent("Podcast links in der Liste wählen");
+    // Die Episode steht erst im Modus „Bestimmte“ da.
+    expect(screen.queryByTestId("podcast-episode-note")).toBeNull();
+  });
+
+  it("schaltet Modus und Player-Größe über beschriftete Pills um", async () => {
     const { onChange } = await renderEditor({ ...EMPTY, podcastId: A });
 
+    expect(screen.getByRole("radiogroup", { name: "Welche Episode" })).toBeInTheDocument();
     await userEvent.click(screen.getByRole("radio", { name: "Bestimmte Episode" }));
     expect(onChange).toHaveBeenLastCalledWith({ podcastId: A, mode: "specific", size: "large" });
-    expect(screen.getByText("Episode links in der Liste wählen")).toBeInTheDocument();
+    expect(episodeNote()).toHaveTextContent("Noch keine Episode gewählt");
+    expect(episodeNote()).toHaveTextContent("Episode links in der Liste wählen.");
 
-    await userEvent.click(screen.getByRole("radio", { name: "Kompakt" }));
+    const size = screen.getByRole("radiogroup", { name: "Größe" });
+    expect(size).toHaveAccessibleDescription(expect.stringContaining("schmale Kachel mit Play und Fortschritt"));
+    await userEvent.click(within(size).getByRole("radio", { name: "Kompakt" }));
     expect(onChange).toHaveBeenLastCalledWith({ podcastId: A, mode: "specific", size: "small" });
   });
 
@@ -226,9 +242,10 @@ describe("PodcastEditor – Formular", () => {
     );
     await act(async () => undefined);
 
-    expect(screen.getByText("Podcast auswählen")).toBeInTheDocument();
-    expect(screen.getByText("Episode auswählen")).toBeInTheDocument();
-    expect(field("Podcast")).toHaveAttribute("aria-invalid", "true");
+    const alerts = screen.getAllByRole("alert").map((alert) => alert.textContent);
+    expect(alerts).toEqual(expect.arrayContaining(["Podcast auswählen", "Episode auswählen"]));
+    expect(heading()).toHaveTextContent("Podcast auswählen");
+    expect(screen.getByRole("group", { name: "Episode" })).toHaveTextContent("Episode auswählen");
   });
 
   it("nimmt eine eingefügte Podcast-Adresse von Hand an", async () => {
@@ -247,5 +264,7 @@ describe("PodcastEditor – Formular", () => {
     // Steht der Podcast nicht in der Liste, erscheint er oben im Baum, damit die Wahl sichtbar bleibt.
     expect(row(pasted)).toHaveAttribute("aria-selected", "true");
     expect(row(pasted)).toHaveTextContent("Nicht in der Liste");
+    expect(heading()).toHaveTextContent(pasted);
+    expect(heading()).toHaveTextContent("Podcast · nicht in der Liste");
   });
 });
