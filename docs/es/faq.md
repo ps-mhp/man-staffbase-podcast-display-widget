@@ -11,21 +11,21 @@ abrirlo.
 **Pregunta:** En el cuadro de diálogo de configuración aparece el mensaje «No se ha podido
 cargar la lista de episodios (o aún no se ha seleccionado ningún podcast)».
 
-Respuesta: Primero, selecciona un podcast en la parte superior; sin un podcast, no hay
+Respuesta: Primero, selecciona un podcast en la parte superior; sin podcast no hay
 lista de episodios. Si la lista sigue vacía, introduce manualmente el identificador del episodio o la
 dirección completa del archivo de audio.
 
 **Pregunta:** Falta un podcast concreto en la lista de selección.
 
 Respuesta: Solo aparecen los podcasts a los que se puede acceder desde esta página.
-El enlace **«¿No encuentras el podcast?»**, situado debajo de la selección, explica las
-causas habituales —por lo general, la falta de derechos de acceso al espacio del
-podcast. No obstante, el ID se puede introducir manualmente; en ese caso, sin embargo,
+El enlace **«¿No encuentras el podcast?»**, situado en la parte inferior izquierda de la lista,
+explica las causas habituales; por lo general, se debe a la falta de derechos de acceso al
+espacio del podcast. No obstante, el ID se puede introducir manualmente; pero, en ese caso,
 debería comprobarse si el público objetivo de la página tiene permiso para escuchar el episodio.
 
 **Pregunta:** En la página aparece «No se ha configurado ningún ID de podcast».
 
-Respuesta: El campo **ID de podcast** está vacío. Selecciona el podcast o introduce la dirección
+Respuesta: El campo **ID de podcast** está vacío. Selecciona un podcast o introduce la dirección
 y guarda los cambios.
 
 **Pregunta:** En la página aparece «Modo “Episodio específico” seleccionado, pero
@@ -37,13 +37,13 @@ se ha seleccionado ningún episodio. Selecciona un episodio o vuelve a `Último 
 
 **Pregunta:** En la página aparece el mensaje «El podcast aún no tiene episodios».
 
-Respuesta: El podcast existe, pero no contiene ningún episodio que se pueda reproducir. Primero debes
+Respuesta: El podcast existe, pero no contiene ningún episodio reproducible. Primero debes
 publicar un episodio en Staffbase.
 
 **Pregunta:** En la página aparece «Episodio no encontrado».
 
-Respuesta: El episodio introducido no existe (ya) en este podcast, por ejemplo,
-tras haberlo eliminado o si el episodio y el podcast no coinciden. Selecciona un nuevo episodio
+Respuesta: El episodio introducido no existe (ya) en este podcast —por ejemplo,
+tras haberlo eliminado o si el episodio y el podcast no coinciden—. Selecciona un nuevo episodio
 o cambia a «Episodio más reciente».
 
 **Pregunta:** El episodio que se muestra cambia por sí solo.

@@ -6,7 +6,7 @@ ir a la sección de podcasts.
 
 ## Dos modos de funcionamiento
 
-- **Último episodio:** El widget muestra siempre el episodio más reciente del
+- **Último episodio:** el widget muestra siempre el episodio más reciente del
   podcast seleccionado. Cuando aparece un nuevo episodio, el widget cambia
   automáticamente; no es necesario modificar la página. Ideal para páginas de inicio,
   páginas de destino de podcasts y páginas de canales.
@@ -21,7 +21,7 @@ ir a la sección de podcasts.
   silenciador. Para áreas amplias y páginas en las que el podcast es el
   tema principal.
 - **Compacto:** mosaico estrecho con imagen de portada, título, fecha y hora, reproducción/pausa
-  y una barra de progreso delgada. Sin opciones de velocidad ni
+  y una barra de progreso delgada. Sin opción de velocidad ni
   silenciamiento. Para columnas estrechas y resúmenes.
 
 ## Información importante

@@ -8,7 +8,7 @@ przechodzenia do sekcji podcastów.
 
 - **Najnowszy odcinek:** Widżet zawsze wyświetla najnowszy odcinek
   wybranego podcastu. Gdy pojawi się nowy odcinek, widżet zmienia się
-  automatycznie — nie trzeba wprowadzać żadnych zmian na stronie. Idealny na strony główne,
+  automatycznie — nie trzeba w żaden sposób modyfikować strony. Idealny na strony główne,
   strony docelowe podcastów i strony kanałów.
 - **Konkretny odcinek:** Widżet na stałe wyświetla dokładnie wybrany
   odcinek. Idealny do wpisów lub stron odnoszących się do konkretnego odcinka
@@ -20,14 +20,14 @@ przechodzenia do sekcji podcastów.
   wskazaniem czasu, prędkość odtwarzania (1× → 1,25× → 1,5× → 2×) oraz
   wyciszenie. Do szerokich obszarów i stron, na których podcast jest
   głównym tematem.
-- **Kompaktowy:** wąska kafelka z okładką, tytułem, datą i godziną, przyciskami odtwarzania/pauzy
-  oraz wąskim paskiem postępu. Bez regulacji prędkości i
-  funkcji wyciszenia. Przeznaczony do wąskich kolumn i przeglądów.
+- **Kompaktowy:** wąska kafelka z okładką, tytułem, datą i godziną, przyciskiem odtwarzania/pauzy
+  oraz wąskim paskiem postępu. Bez opcji prędkości odtwarzania i
+  wyciszenia. Przeznaczony do wąskich kolumn i przeglądów.
 
 ## Ważne informacje
 
 - Podcast musi już istnieć w Staffbase i mieć co najmniej jeden odcinek
- . Widżet nie tworzy podcastów ani odcinków.
+ . Widżet nie tworzy ani podcastów, ani odcinków.
 - Odtwarzany jest zawsze **jeden** odcinek, nigdy lista odcinków.
 - Nie ma funkcji automatycznego odtwarzania, a pozycja odtwarzania nie jest
   zapisywana: po ponownym otwarciu strony odcinek zaczyna się od

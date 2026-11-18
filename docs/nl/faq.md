@@ -18,9 +18,9 @@ volledige adres van het audiobestand handmatig in.
 **Vraag:** Een bepaalde podcast ontbreekt in de keuzelijst.
 
 Antwoord: Er worden alleen podcasts weergegeven die vanaf deze pagina bereikbaar
-zijn. De link **„Podcast niet gevonden?“** onder de keuzelijst legt de
-gebruikelijke oorzaken uit — meestal ontbrekende toegangsrechten tot de ruimte van de
-podcast. De ID kan toch handmatig worden ingevoerd; controleer dan echter
+zijn. De link **„Podcast niet gevonden?“** linksonder in de lijst
+legt de gebruikelijke oorzaken uit — meestal ontbrekende toegangsrechten tot de
+space van de podcast. De ID kan toch handmatig worden ingevoerd; controleer dan echter
 of de doelgroep van de pagina de aflevering überhaupt mag beluisteren.
 
 **Vraag:** Op de pagina staat „Geen podcast-ID geconfigureerd.“
@@ -60,5 +60,5 @@ nodig heeft, kiest de afspeelgrootte `Groot`.
 
 **Vraag:** Kan ik meerdere afleveringen als lijst weergeven?
 
-Antwoord: Nee, een widget speelt precies één aflevering af. Plaats meerdere
-widgets voor meerdere afleveringen.
+Antwoord: Nee, een widget speelt precies één aflevering af. Plaats voor meerdere afleveringen meerdere
+widgets.

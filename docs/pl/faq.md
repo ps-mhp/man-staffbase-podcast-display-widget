@@ -1,7 +1,7 @@
 # FAQ
 
-**Pytanie:** W oknie dialogowym konfiguracji pojawia się komunikat: „Nie udało się
-załadować listy podcastów. Proszę wprowadzić identyfikator instalacji”.
+**Pytanie:** W oknie dialogowym konfiguracji pojawia się komunikat: „Nie udało się załadować listy podcastów.
+Wprowadź identyfikator instalacji”.
 
 Odpowiedź: Lista wyboru służy wyłącznie wygodzie użytkownika. Otwórz podcast w
 aplikacji Staffbase i wklej pełny adres w polu **ID podcastu**.
@@ -17,22 +17,22 @@ pełny adres pliku audio.
 
 **Pytanie:** Na liście wyboru brakuje konkretnego podcastu.
 
-Odpowiedź: Wyświetlane są tylko podcasty, do których można uzyskać dostęp z tej strony.
-Link **„Nie możesz znaleźć podcastu?”** pod listą wyboru wyjaśnia
-typowe przyczyny — zazwyczaj brak uprawnień dostępu do przestrzeni
-podcastu. Identyfikator można mimo to wpisać ręcznie; należy jednak
+Odpowiedź: Wyświetlane są tylko podcasty, do których można uzyskać dostęp
+z tej strony. Link **„Nie możesz znaleźć podcastu?”** w lewym dolnym rogu listy
+wyjaśnia typowe przyczyny — zazwyczaj brak uprawnień dostępu do
+przestrzeni podcastu. ID można mimo to wprowadzić ręcznie; należy jednak
 sprawdzić, czy grupa docelowa strony ma w ogóle uprawnienia do odsłuchania tego odcinka.
 
 **Pytanie:** Na stronie widnieje komunikat „Nie skonfigurowano identyfikatora podcastu”.
 
-Odpowiedź: Pole **Identyfikator podcastu** jest puste. Wybierz podcast lub wstaw adres
+Odpowiedź: Pole **identyfikatora podcastu** jest puste. Wybierz podcast lub wstaw adres
 i zapisz.
 
 **Pytanie:** Na stronie widnieje komunikat „Wybrano tryb »Konkretny odcinek«, ale
 nie skonfigurowano identyfikatora odcinka”.
 
 Odpowiedź: Tryb wyświetlania jest ustawiony na `Konkretny odcinek`, ale nie wybrano żadnego
-odcinek. Należy albo wybrać odcinek, albo przywrócić ustawienie `Najnowszy odcinek`
+odcinka. Należy albo wybrać odcinek, albo przywrócić ustawienie `Najnowszy odcinek`
 .
 
 **Pytanie:** Na stronie pojawia się komunikat „Podcast nie ma jeszcze żadnych odcinków”.
@@ -49,16 +49,16 @@ lub przełącz na tryb `Najnowszy odcinek`.
 **Pytanie:** Wyświetlany odcinek zmienia się samoczynnie.
 
 Odpowiedź: W trybie `Najnowszy odcinek` jest to zamierzone zachowanie. Jeśli chcesz, aby na stałe
-wyświetlał się ten sam odcinek, przełącz na opcję `Określony odcinek`.
+wyświetlał się ten sam odcinek, przełącz na `Określony odcinek`.
 
-**Pytanie:** Dlaczego w kompaktowym odtwarzaczu brakuje opcji regulacji prędkości i
-wyciszenia?
+**Pytanie:** Dlaczego w kompaktowym odtwarzaczu brakuje regulacji prędkości i
+funkcji wyciszenia?
 
-Odpowiedź: Kompaktowy odtwarzacz został celowo ograniczony do funkcji odtwarzania/pauzy i wyświetlania postępu,
-aby zmieścił się w wąskich kolumnach. Jeśli potrzebujesz pełnej kontroli,
-wybierz rozmiar odtwarzacza „Duży”.
+Odpowiedź: Kompaktowy odtwarzacz został celowo ograniczony do funkcji odtwarzania/pauzy i
+wskazania postępu, aby zmieścił się w wąskich kolumnach. Jeśli potrzebujesz pełnej kontroli,
+wybierz rozmiar odtwarzacza `Duży`.
 
 **Pytanie:** Czy mogę wyświetlić kilka odcinków w formie listy?
 
-Odpowiedź: Nie, jeden widget odtwarza dokładnie jeden odcinek. Aby wyświetlić kilka odcinków, należy umieścić kilka
+Odpowiedź: Nie, jeden widget odtwarza dokładnie jeden odcinek. Aby wyświetlić kilka odcinków, umieść kilka
 widgetów.

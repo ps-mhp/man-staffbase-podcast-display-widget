@@ -25,7 +25,7 @@
   ],
   "examples": [
     {
-      "title": "Último episodio, gran reproductor",
+      "title": "Último episodio, gran protagonista",
       "attributes": {
         "display-mode": "latest",
         "player-size": "large"
@@ -35,7 +35,7 @@
       ]
     },
     {
-      "title": "Episodio concreto, reproductor pequeño",
+      "title": "Un episodio concreto, un reproductor pequeño",
       "attributes": {
         "display-mode": "specific",
         "player-size": "small"

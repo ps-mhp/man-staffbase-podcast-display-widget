@@ -1,6 +1,6 @@
 {
   "title": "Podcast Ad",
-  "summary": "Play a podcast episode directly on a page—either the latest one or a specific one, as you choose.",
+  "summary": "Play a podcast episode directly on a page—either the latest one or a specific one.",
   "pages": [
     {
       "id": "overview",
@@ -35,7 +35,7 @@
       ]
     },
     {
-      "title": "A specific episode, small player",
+      "title": "Specific episode, small player",
       "attributes": {
         "display-mode": "specific",
         "player-size": "small"

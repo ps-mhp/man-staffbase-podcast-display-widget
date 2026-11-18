@@ -1,45 +1,69 @@
 # Stap voor stap
 
+Alle instellingen staan in het venster **Podcast kiezen**. Dit venster wordt
+automatisch geopend zodra het instellingenvenster van de widget verschijnt; als het gesloten is,
+kun je het weer openen met de knop **Podcast kiezen**.
+
+Aan de linkerkant staan de podcasts met hun afleveringen; het zoekveld daarboven zoekt
+podcasts en afleveringen op titel. In het midden staan bovenaan de geselecteerde
+podcast, daaronder **Weergave** en **Speler**.
+
 ## Altijd de nieuwste aflevering weergeven
 
-1. Open de doelpagina om deze te bewerken en sleep de widget **Podcast-weergave** naar de
+1. Open de doelpagina om te bewerken en sleep de widget **Podcastweergave** naar de
    gewenste plek.
-2. Selecteer onder **Podcast-ID** de podcast uit de keuzelijst.
-3. Laat **Weergavemodus** op `Nieuwste aflevering` staan (standaardinstelling).
-4. Kies **spelerformaat**: `Groot` voor brede gebieden, `Compact` voor smalle
+2. Klik in het venster links onder **Podcasts** op de podcast.
+3. Laat onder **Weergave** `Nieuwste aflevering` staan (standaardinstelling).
+4. Kies onder **Speler** `Groot` voor brede gebieden of `Compact` voor smalle
    kolommen.
-5. Sla op en controleer in het voorbeeld.
+5. Controleer bovenaan via **Desktop**, **Tablet** en **Mobiel** het voorbeeld bekijken.
+   Weergave en speler kunnen daar rechts naast het voorbeeld verder
+   worden aangepast.
+6. Klik op **Toepassen** en sla vervolgens de pagina op.
 
 Vanaf nu wordt de weergave bij elke nieuwe aflevering automatisch bijgewerkt.
 
 ## Een specifieke aflevering weergeven
 
-1. Open de doelpagina om te bewerken en sleep de widget **Podcastweergave** naar de
+1. Open de doelpagina om deze te bewerken en sleep de widget **Podcast-weergave** naar de
    gewenste plek.
-2. Selecteer onder **Podcast-ID** de podcast uit de keuzelijst.
-3. Stel **Weergavemodus** in op `Specifieke aflevering`. Pas dan wordt het
-   veld **Aflevering-ID** gebruikt.
-4. Selecteer onder **Aflevering-ID** de gewenste aflevering uit de keuzelijst.
-5. Kies **Spelerformaat**.
-6. Sla op en controleer in het voorbeeld.
+2. Klik in het venster links op de pijl voor de podcast — de afleveringen worden
+   geladen en verschijnen eronder.
+3. Klik op de gewenste aflevering. De weergave springt dan vanzelf naar
+   `Specifieke aflevering`.
+4. Kies onder **Speler** de grootte.
+5. Klik op **Toepassen** en sla vervolgens de pagina op.
 
-## Als er geen keuzelijst verschijnt
+Als de aflevering ontbreekt, klik dan helemaal onderaan in de lijst van de podcast op **Meer afleveringen
+laden** — of typ de titel in het zoekveld boven de lijst.
 
-In plaats van de lijst verschijnt dan een melding dat podcasts of afleveringen niet
-konden worden geladen. Voer dan handmatig in:
+## Als er geen lijst verschijnt
 
-1. Voor de **podcast-ID**: open de podcast in Staffbase en kopieer het
-   volledige adres uit de adresbalk naar het veld.
-2. Voor de **aflevering-ID**: voer de ID van de aflevering of het volledige adres
-   van het audiobestand in het veld in.
-3. Opslaan. De widget haalt in beide gevallen zelf de daadwerkelijke ID
-   op.
+In plaats van de lijst staat er dan een melding dat de podcasts of afleveringen niet
+konden worden geladen. Klik eerst op **Opnieuw proberen**. Als dat niet helpt,
+voeg dan handmatig in:
+
+1. Open in het venster het gedeelte **ID handmatig invoeren**.
+2. Voor de podcast: open de podcast in Staffbase en voeg het volledige
+   adres uit de adresbalk invoeren.
+3. Voor een bepaalde aflevering: de ID van de aflevering of het volledige
+   adres van het audiobestand invoeren.
+4. Klik op **Toepassen**. De widget haalt in beide
+   gevallen zelf de daadwerkelijke ID op.
 
 ## Als een podcast in de lijst ontbreekt
 
-1. Klik op de link **„Podcast niet gevonden?“** onder de selectie — daar
-   staan de gebruikelijke oorzaken vermeld.
-2. Controleer of de Space van de podcast vanaf deze pagina toegankelijk is;
-   er worden alleen bereikbare podcasts weergegeven.
+1. Klik linksonder op **Podcast niet te vinden?** — rechts verschijnt
+   een balk met de gebruikelijke oorzaken.
+2. Controleer of de Space van de podcast vanaf deze pagina toegankelijk is.
+   Podcasts uit een andere Space staan in de lijst met de vermelding
+   „Andere Space – hier niet beschikbaar“ en kunnen niet
+   worden geselecteerd.
 3. Voer indien nodig de podcast-ID handmatig in — controleer dan wel of de
    doelgroep van de pagina de aflevering überhaupt mag beluisteren.
+
+## Oudere widgets
+
+Widgets die vóór het venster zijn ingesteld, blijven weergeven wat ze
+eerder weergeven. Bij de eerste keer openen neemt het venster de bestaande
+instellingen over; pas als je op **Toepassen** klikt, worden ze in het nieuwe formaat opgeslagen.
