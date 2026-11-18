@@ -14,7 +14,7 @@
 /**
  * Copy for the "podcast missing?" explanation.
  *
- * Seit dem Fenster „Podcast einstellen“ öffnet sie der Link im Fuß von dessen
+ * Seit dem Fenster „Podcast wählen“ öffnet sie der Link im Fuß von dessen
  * Seitenleiste als Leiste rechts (`podcast-sidebar.tsx`) statt eines Modals
  * im Dialog; `episodesUnavailableLabel` und `close` braucht dort niemand
  * mehr. Sie

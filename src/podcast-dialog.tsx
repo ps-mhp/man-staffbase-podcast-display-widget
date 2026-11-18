@@ -22,7 +22,7 @@
  */
 
 import * as React from "react";
-import { Podcast } from "lucide-react";
+import { Mic } from "lucide-react";
 
 import { FieldModalShellOptions, startFieldModalInjector } from "@shared/config-modal";
 
@@ -46,7 +46,8 @@ const LOADING = <p className="p-6 text-sm text-muted-foreground">Editor wird gel
 const HELP = (
   <ul className="flex list-disc flex-col gap-2 pl-5">
     <li>
-      Links den <strong>Podcast</strong> wählen; der Pfeil davor zeigt seine Episoden.
+      Links den <strong>Podcast</strong> wählen; der Pfeil davor zeigt seine Episoden. Die Suche darüber findet
+      Podcasts und Episoden.
     </li>
     <li>
       <strong>Neueste Episode</strong> zeigt immer die jüngste Folge – neue Folgen erscheinen von selbst.
@@ -57,7 +58,11 @@ const HELP = (
     <li>
       <strong>Groß</strong> zeigt Cover und volle Steuerung, <strong>Kompakt</strong> eine schmale Kachel.
     </li>
-    <li>Fehlt ein Podcast, liegt das meist an den Rechten seines Space – unten links steht mehr dazu.</li>
+    <li>In Desktop, Tablet und Mobil stehen Anzeige und Player rechts neben der Vorschau.</li>
+    <li>
+      Fehlt ein Podcast, liegt das meist an den Rechten seines Space – <strong>Podcast nicht auffindbar?</strong> unten
+      links erklärt mehr.
+    </li>
     <li>Lädt die Liste nicht, lässt sich die ID unter „ID von Hand eintragen“ einfügen.</li>
   </ul>
 );
@@ -65,8 +70,8 @@ const HELP = (
 /** Was der gemeinsame Rahmen von der Podcast-Anzeige wissen muss. Offengelegt für Tests. */
 export const podcastEditorShell: FieldModalShellOptions<PodcastConfig> = {
   widgetName: "Podcast-Anzeige",
-  title: "Podcast einstellen",
-  icon: Podcast,
+  title: "Podcast wählen",
+  icon: Mic,
   preview: true,
   help: HELP,
   statusText: podcastChangesStatus,
@@ -86,7 +91,7 @@ export function startPodcastDialog(root: ParentNode = document): () => void {
   const stopModal = startFieldModalInjector<PodcastConfig>({
     fieldKey: PODCAST_CONFIG_ATTRIBUTE,
     root,
-    reopenLabel: "Podcast einstellen",
+    reopenLabel: "Podcast wählen",
     modalTestId: "podcast-editor-modal",
     reopenTestId: "podcast-editor-reopen",
     parse: (raw) => readPodcastConfig(raw) ?? configFromLegacy(readLegacyFromDialog(root)),

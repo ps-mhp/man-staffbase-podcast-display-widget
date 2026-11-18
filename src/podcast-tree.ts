@@ -12,7 +12,7 @@
  */
 
 /**
- * Der Baum links im Fenster „Podcast einstellen“: Podcasts als Ordner, ihre
+ * Der Baum links im Fenster „Podcast wählen“: Podcasts als Ordner, ihre
  * Episoden darin – als reine Funktionen, damit sich ohne DOM prüfen lässt,
  * was wo steht und was eine Auswahl bewirkt.
  *

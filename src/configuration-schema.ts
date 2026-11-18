@@ -47,7 +47,7 @@ export const LEGACY_ATTRIBUTES = [
  * Schema for the widget's configuration dialog.
  *
  * Zu sehen ist nur `podcast-config`: an seine Stelle tritt der Knopf zum
- * Fenster „Podcast einstellen“, in dem alles gepflegt wird
+ * Fenster „Podcast wählen“, in dem alles gepflegt wird
  * (`podcast-dialog.ts`). Die übrigen Felder sind die der Fassungen bis
  * 0.4.0-rc.3.
  *
@@ -98,7 +98,7 @@ export const ALL_ATTRIBUTES: string[] = Object.keys(configurationSchema.properti
 export const uiSchema: UiSchema = {
   [PODCAST_CONFIG_ATTRIBUTE]: {
     "ui:help":
-      "Podcast, Episode und Player werden im Fenster „Podcast einstellen“ gepflegt; " +
+      "Podcast, Episode und Player werden im Fenster „Podcast wählen“ gepflegt; " +
       "das Textfeld dahinter ist die Rohfassung.",
   },
 };

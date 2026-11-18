@@ -12,7 +12,7 @@
  */
 
 /**
- * Was das Fenster „Podcast einstellen“ vom Netz braucht: die Podcasts und, je
+ * Was das Fenster „Podcast wählen“ vom Netz braucht: die Podcasts und, je
  * Podcast erst auf Nachfrage, seine Episoden – seitenweise.
  *
  * Gelesen wird über dieselben Quellen wie bisher im Dialog

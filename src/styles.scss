@@ -37,7 +37,7 @@ $slider-halo-pressed: rgba(250, 183, 198, 0.7);
 // Spaltenbreite und bleibt quadratisch.
 //
 // Ein Mixin, weil es zwei Auslöser gibt: die Medienabfrage auf der Seite und
-// die Ansicht „Mobil“ in der Vorschau des Fensters „Podcast einstellen“, wo
+// die Ansicht „Mobil“ in der Vorschau des Fensters „Podcast wählen“, wo
 // die Medienabfrage das Studio-Fenster fragte statt des Gerätrahmens.
 @mixin stacked-large-player {
   .podcast-display__player--large .podcast-display__header {
@@ -454,7 +454,7 @@ $slider-halo-pressed: rgba(250, 183, 198, 0.7);
   }
 }
 
-// Die Vorschau im Fenster „Podcast einstellen“, Ansicht „Mobil“
+// Die Vorschau im Fenster „Podcast wählen“, Ansicht „Mobil“
 // (`podcast-preview.tsx`): dieselben Regeln wie auf dem Telefon, ausgelöst
 // durch eine Klasse statt durch die Breite des Studio-Fensters. Auf einer
 // Seite trägt kein Element diese Klasse.

@@ -106,7 +106,7 @@ const externalBlockDefinition: ExternalBlockDefinition = {
 // bundle takes over and registers instead. Only ever one of the two, a block
 // name cannot be claimed twice.
 //
-// Das Fenster „Podcast einstellen“ hängt am Anmelden, nicht am Laden: auf
+// Das Fenster „Podcast wählen“ hängt am Anmelden, nicht am Laden: auf
 // Modulebene gestartet, belegte das installierte Bündel das Feld
 // `podcast-config`, bevor feststeht, ob ein lokaler Entwicklungsserver
 // übernimmt – dann käme die Ansicht von dort, das Fenster aber aus der

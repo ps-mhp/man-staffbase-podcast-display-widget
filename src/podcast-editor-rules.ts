@@ -12,7 +12,7 @@
  */
 
 /**
- * Prüfung und Status des Fensters „Podcast einstellen“.
+ * Prüfung und Status des Fensters „Podcast wählen“.
  *
  * Liegt im Seitenbündel, nicht beim nachgeladenen Editor: der Rahmen braucht
  * beides schon, bevor der Editor da ist. Darum nur reine Funktionen, nichts
@@ -44,12 +44,19 @@ function joinGerman(parts: readonly string[]): string {
   return `${parts.slice(0, -1).join(", ")} und ${parts[parts.length - 1]}`;
 }
 
-/** Was sich gegenüber dem übernommenen Stand geändert hat, etwa „Podcast und Player geändert“. */
+const present = (parts: readonly (string | false)[]): string[] =>
+  parts.filter((part): part is string => part !== false);
+
+/**
+ * Was sich gegenüber dem übernommenen Stand geändert hat. Podcast und Episode
+ * werden gewählt, der Player eingestellt – wie bei den anderen Widgets mit
+ * Auswahl: „Episode gewählt“, „Podcast und Episode gewählt, Player geändert“.
+ */
 export function podcastChangesStatus(draft: PodcastConfig, saved: PodcastConfig): string | undefined {
-  const changed = [
+  const chosen = present([
     draft.podcastId !== saved.podcastId && "Podcast",
     (draft.mode !== saved.mode || draft.episodeId !== saved.episodeId) && "Episode",
-    draft.size !== saved.size && "Player",
-  ].filter((part): part is string => part !== false);
-  return changed.length === 0 ? undefined : `${joinGerman(changed)} geändert`;
+  ]);
+  const parts = present([chosen.length > 0 && `${joinGerman(chosen)} gewählt`, draft.size !== saved.size && "Player geändert"]);
+  return parts.length === 0 ? undefined : parts.join(", ");
 }

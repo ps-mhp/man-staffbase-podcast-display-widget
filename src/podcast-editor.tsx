@@ -12,7 +12,7 @@
  */
 
 /**
- * Der Rumpf des Fensters „Podcast einstellen“ im gemeinsamen Rahmen von
+ * Der Rumpf des Fensters „Podcast wählen“ im gemeinsamen Rahmen von
  * `@man/config-ui`: links der Baum, in der Mitte das Formular – Kopf mit dem
  * gewählten Podcast, Anzeige, Player –, in den Geräteansichten die Vorschau.
  * Dort stehen Anzeige und Player rechts im Inspektor, damit man beim

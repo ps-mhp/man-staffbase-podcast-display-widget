@@ -12,7 +12,7 @@
  */
 
 /**
- * Das Fenster „Podcast einstellen“ im gemeinsamen Rahmen von
+ * Das Fenster „Podcast wählen“ im gemeinsamen Rahmen von
  * `@man/config-ui`, eingehängt in einen echten RJSF-Dialog: Ausgangsstand aus
  * den alten Feldern, erstes Übernehmen nach `podcast-config`, Prüfung,
  * Ausblenden nur im eigenen Dialog, Nachladen des Editors.
@@ -149,7 +149,7 @@ describe("startPodcastDialog", () => {
     const { stop } = await open({});
 
     expect(modalRoot()!.textContent).toContain("Podcast-Anzeige");
-    expect(modalRoot()!.querySelector("h1")).toHaveTextContent("Podcast einstellen");
+    expect(modalRoot()!.querySelector("h1")).toHaveTextContent("Podcast wählen");
     expect(inModal('[aria-label="Ansicht"]')).not.toBeNull();
     expect(inModal('[role="treegrid"][aria-label="Podcasts"]')).toHaveTextContent("Werkfunk");
 
@@ -290,8 +290,9 @@ describe("podcastEditorShell", () => {
     const statusText = podcastEditorShell.statusText!;
 
     expect(statusText({ ...saved, size: "small" }, saved)).toBe("Player geändert");
+    expect(statusText({ ...saved, mode: "specific", episodeId: E1 }, saved)).toBe("Episode gewählt");
     expect(statusText({ podcastId: "", mode: "specific", episodeId: E1, size: "small" }, saved)).toBe(
-      "Podcast, Episode und Player geändert",
+      "Podcast und Episode gewählt, Player geändert",
     );
     expect(statusText(saved, saved)).toBeUndefined();
   });
@@ -303,5 +304,6 @@ describe("podcastEditorShell", () => {
     expect(container).toHaveTextContent("Bestimmte Episode");
     expect(container).toHaveTextContent("Kompakt");
     expect(container).toHaveTextContent("ID von Hand eintragen");
+    expect(container).toHaveTextContent("Die Suche darüber findet Podcasts und Episoden.");
   });
 });

@@ -12,7 +12,7 @@
  */
 
 /**
- * Die linke Spalte im Fenster „Podcast einstellen“: oben die Suche, darunter
+ * Die linke Spalte im Fenster „Podcast wählen“: oben die Suche, darunter
  * alle erreichbaren Podcasts als Ordner, darin ihre Episoden.
  *
  * Jeder Zustand ist zu sehen – Laden, Fehler mit „Erneut versuchen“, keine
