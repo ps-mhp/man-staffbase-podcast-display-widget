@@ -1,8 +1,12 @@
 # Schritt für Schritt
 
-Alle Einstellungen stehen im Fenster **Podcast einstellen**. Es öffnet sich
+Alle Einstellungen stehen im Fenster **Podcast wählen**. Es öffnet sich
 von selbst, sobald der Einstellungsdialog des Widgets erscheint; geschlossen
-öffnet es der Knopf **Podcast einstellen** wieder.
+öffnet es der Knopf **Podcast wählen** wieder.
+
+Links stehen die Podcasts mit ihren Folgen; das Suchfeld darüber findet
+Podcasts und Folgen nach ihrem Titel. In der Mitte stehen oben der gewählte
+Podcast, darunter **Anzeige** und **Player**.
 
 ## Immer die neueste Folge zeigen
 
@@ -13,6 +17,8 @@ von selbst, sobald der Einstellungsdialog des Widgets erscheint; geschlossen
 4. Unter **Player** `Groß` für breite Bereiche oder `Kompakt` für schmale
    Spalten wählen.
 5. Oben über **Desktop**, **Tablet** und **Mobil** die Vorschau prüfen.
+   Anzeige und Player lassen sich dort rechts neben der Vorschau weiter
+   umstellen.
 6. **Übernehmen** klicken und anschließend die Seite speichern.
 
 Ab jetzt aktualisiert sich die Anzeige bei jeder neuen Folge von selbst.
@@ -29,7 +35,7 @@ Ab jetzt aktualisiert sich die Anzeige bei jeder neuen Folge von selbst.
 5. **Übernehmen** klicken und anschließend die Seite speichern.
 
 Fehlt die Folge, ganz unten in der Liste des Podcasts **Weitere Episoden
-laden** anklicken.
+laden** anklicken — oder ihren Titel ins Suchfeld über der Liste tippen.
 
 ## Wenn keine Liste erscheint
 
@@ -47,8 +53,8 @@ von Hand eintragen:
 
 ## Wenn ein Podcast in der Liste fehlt
 
-1. Unten in der Liste **Podcast nicht auffindbar?** aufklappen — dort stehen
-   die üblichen Ursachen.
+1. Unten links **Podcast nicht auffindbar?** anklicken — rechts öffnet sich
+   eine Leiste mit den üblichen Ursachen.
 2. Prüfen, ob der Space des Podcasts von dieser Seite aus zugänglich ist.
    Podcasts aus einem anderen Space stehen mit dem Hinweis
    „Anderer Space – hier nicht nutzbar“ in der Liste und lassen sich nicht

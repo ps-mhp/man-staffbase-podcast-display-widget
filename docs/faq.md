@@ -18,9 +18,9 @@ vollständige Adresse der Audiodatei von Hand eintragen.
 **Frage:** Ein bestimmter Podcast fehlt in der Auswahlliste.
 
 Antwort: Aufgeführt sind nur Podcasts, die von dieser Seite aus erreichbar
-sind. Der Link **„Podcast nicht auffindbar?“** unter der Auswahl erklärt die
-üblichen Ursachen — in der Regel fehlende Zugriffsrechte auf den Space des
-Podcasts. Die ID lässt sich trotzdem von Hand eintragen; dann sollte aber
+sind. Der Link **„Podcast nicht auffindbar?“** unten links in der Liste
+erklärt die üblichen Ursachen — in der Regel fehlende Zugriffsrechte auf den
+Space des Podcasts. Die ID lässt sich trotzdem von Hand eintragen; dann sollte aber
 geprüft werden, ob die Zielgruppe der Seite die Folge überhaupt hören darf.
 
 **Frage:** Auf der Seite steht „Keine Podcast-ID konfiguriert.“
