@@ -268,3 +268,43 @@ describe("PodcastEditor – Formular", () => {
     expect(heading()).toHaveTextContent("Podcast · nicht in der Liste");
   });
 });
+
+describe("PodcastEditor – Geräteansichten", () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  function renderInView(view: "editor" | "mobile", initial: PodcastConfig) {
+    // Die Vorschau holt die Episode aus dem Netz; hier bleibt sie beim Laden.
+    jest.spyOn(globalThis, "fetch").mockImplementation(() => new Promise(() => undefined));
+    const onChange = jest.fn();
+    const shell = { view, setView: jest.fn(), preview: true, issuesVisible: false };
+    render(
+      <ConfigShellProvider value={shell}>
+        <Harness initial={initial} catalog={loaders()} onChange={onChange} />
+      </ConfigShellProvider>,
+    );
+    return onChange;
+  }
+
+  it("stellt Anzeige und Player neben der Vorschau im Inspektor ein", async () => {
+    const onChange = renderInView("mobile", { podcastId: A, mode: "specific", episodeId: E1, size: "large" });
+    await act(async () => undefined);
+
+    const inspector = screen.getByRole("complementary", { name: "Einstellungen" });
+    expect(screen.getByRole("region", { name: "Vorschau Mobil" })).toBeInTheDocument();
+    expect(within(inspector).getByRole("radio", { name: "Bestimmte Episode" })).toHaveAttribute("aria-checked", "true");
+    // Knapp: die Vorschau zeigt Episode und Größe, Hinweise braucht es daneben nicht.
+    expect(within(inspector).queryByTestId("podcast-episode-note")).toBeNull();
+    expect(within(inspector).getByRole("radiogroup", { name: "Größe" })).not.toHaveAccessibleDescription();
+
+    await userEvent.click(within(inspector).getByRole("radio", { name: "Kompakt" }));
+    expect(onChange).toHaveBeenLastCalledWith({ podcastId: A, mode: "specific", episodeId: E1, size: "small" });
+  });
+
+  it("zeigt im Editor keinen Inspektor, das Formular steht in der Mitte", async () => {
+    renderInView("editor", { ...EMPTY, podcastId: A });
+    await act(async () => undefined);
+
+    expect(screen.queryByRole("complementary", { name: "Einstellungen" })).toBeNull();
+    expect(screen.getAllByRole("radiogroup", { name: "Größe" })).toHaveLength(1);
+  });
+});

@@ -15,6 +15,8 @@
  * Der Rumpf des Fensters „Podcast einstellen“ im gemeinsamen Rahmen von
  * `@man/config-ui`: links der Baum, in der Mitte das Formular – Kopf mit dem
  * gewählten Podcast, Anzeige, Player –, in den Geräteansichten die Vorschau.
+ * Dort stehen Anzeige und Player rechts im Inspektor, damit man beim
+ * Umschalten weiter einstellen kann und das Ergebnis sofort sieht.
  *
  * Nur im Studio nachgeladen (`podcast-dialog.tsx`): er bringt react-aria und
  * Tailwind mit, und das hat im Seitenbündel, das jede Leserin lädt, nichts
@@ -22,7 +24,9 @@
  */
 
 import * as React from "react";
+import { InspectorPanel } from "@man/config-ui/inspector/inspector-panel";
 import { ConfigWorkspace } from "@man/config-ui/layout/config-workspace";
+import { useConfigShell } from "@man/config-ui/shell/shell-context";
 
 import { DEFAULT_CATALOG_LOADERS, PodcastCatalog, PodcastCatalogLoaders, usePodcastCatalog } from "./podcast-catalog-state";
 import type { PodcastConfig } from "./podcast-config";
@@ -117,10 +121,24 @@ function useLabels(value: PodcastConfig, catalog: PodcastCatalog): Labels {
   };
 }
 
+/** Anzeige und Player knapp, neben der Vorschau. */
+function PreviewInspector({ value, onChange, episodeLabel }: PodcastEditorProps & { episodeLabel: string }): React.ReactElement {
+  return (
+    <InspectorPanel title="Einstellungen">
+      <div className="flex flex-col gap-6" data-testid="podcast-inspector">
+        <DisplaySection value={value} onChange={onChange} episodeLabel={episodeLabel} detailed={false} />
+        <PlayerSection value={value} onChange={onChange} detailed={false} />
+      </div>
+    </InspectorPanel>
+  );
+}
+
 export function PodcastEditor({ value, onChange, loaders = DEFAULT_CATALOG_LOADERS }: PodcastEditorProps): React.ReactElement {
   const catalog = usePodcastCatalog(loaders);
   const { expandedIds, expand, select } = useTreeNavigation(value, onChange, catalog);
   const labels = useLabels(value, catalog);
+  // Im Editor stehen dieselben Abschnitte in der Mitte; ein Inspektor daneben verdoppelte sie.
+  const { view } = useConfigShell();
 
   return (
     <ConfigWorkspace
@@ -134,6 +152,11 @@ export function PodcastEditor({ value, onChange, loaders = DEFAULT_CATALOG_LOADE
         />
       }
       preview={<PodcastPreview config={value} />}
+      inspector={
+        view === "editor" ? undefined : (
+          <PreviewInspector value={value} onChange={onChange} episodeLabel={labels.episodeLabel} />
+        )
+      }
     >
       <div className="flex max-w-[720px] flex-col gap-8 px-10 pt-6 pb-12" data-testid="podcast-editor">
         <PodcastHeading value={value} title={labels.podcastTitle} kicker={labels.podcastKicker} />
