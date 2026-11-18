@@ -94,6 +94,7 @@ describe("PodcastEditor – Baum", () => {
 
     expect(within(tree()).getAllByRole("row")).toHaveLength(3);
     expect(row(/Werkfunk/)).toHaveAttribute("aria-expanded", "false");
+    expect(row(/Werkfunk/)).toHaveTextContent("Podcast");
     expect(screen.getByText("(3)")).toBeInTheDocument();
     expect(catalog.loadEpisodes).not.toHaveBeenCalled();
   });
@@ -107,6 +108,7 @@ describe("PodcastEditor – Baum", () => {
     expect(catalog.loadEpisodes).toHaveBeenCalledWith(A);
     expect(row(/Folge 1/)).toBeInTheDocument();
     expect(row(/Folge 2/)).toBeInTheDocument();
+    expect(row(/Werkfunk/)).toHaveTextContent("Podcast · 2 Episoden");
   });
 
   it("schreibt beim Wählen einer Episode Podcast, Modus und Episode in den Entwurf", async () => {
@@ -165,6 +167,45 @@ describe("PodcastEditor – Baum", () => {
     expect(catalog.loadEpisodes).toHaveBeenLastCalledWith(A, "seite-2");
     expect(row(/Folge 3/)).toBeInTheDocument();
     expect(screen.queryByText("Weitere Episoden laden")).toBeNull();
+  });
+});
+
+describe("PodcastEditor – Suche", () => {
+  const search = (): HTMLElement => screen.getByRole("searchbox", { name: "Podcast oder Episode suchen" });
+
+  it("filtert die Podcasts nach Titel", async () => {
+    await renderEditor();
+
+    await userEvent.type(search(), "technik");
+
+    expect(within(tree()).getAllByRole("row").map((item) => item.textContent)).toEqual([expect.stringContaining("Technik-Talk")]);
+  });
+
+  it("lädt beim Suchen die Episoden nutzbarer Podcasts und klappt Treffer auf", async () => {
+    const { catalog, onChange } = await renderEditor();
+
+    await userEvent.type(search(), "folge 2");
+
+    expect(catalog.loadEpisodes).toHaveBeenCalledWith(A);
+    expect(catalog.loadEpisodes).toHaveBeenCalledWith(B);
+    // Aus einem anderen Space: nicht nutzbar, also nichts zu laden.
+    expect(catalog.loadEpisodes).not.toHaveBeenCalledWith(C);
+    expect(row(/Werkfunk/)).toHaveAttribute("aria-expanded", "true");
+    expect(within(tree()).getAllByRole("row")).toHaveLength(2);
+
+    await userEvent.click(screen.getByText("Folge 2"));
+    expect(onChange).toHaveBeenLastCalledWith({ podcastId: A, mode: "specific", episodeId: E2, size: "large" });
+  });
+
+  it("sagt, wenn nichts passt, und leert sich mit Escape", async () => {
+    await renderEditor();
+
+    await userEvent.type(search(), "gibt es nicht");
+    expect(tree()).toHaveTextContent("Nichts gefunden zu „gibt es nicht“");
+
+    await userEvent.keyboard("{Escape}");
+    expect(search()).toHaveValue("");
+    expect(within(tree()).getAllByRole("row")).toHaveLength(3);
   });
 });
 

@@ -20,7 +20,9 @@ import {
   applyTreeTarget,
   buildPodcastTree,
   episodeNodeId,
+  filterPodcastTree,
   parseNodeId,
+  podcastDescription,
   podcastNodeId,
   selectedNodeId,
 } from "./podcast-tree";
@@ -118,6 +120,64 @@ describe("buildPodcastTree", () => {
     const [own] = tree({ [A]: { status: "ready", value: { episodes: [episode(E1, "Folge 1")] } } }, config);
 
     expect(own.children?.[0]).toMatchObject({ id: episodeNodeId(A, E2), description: "Gewählte Episode" });
+  });
+});
+
+describe("podcastDescription", () => {
+  it("nennt die Zahl der Episoden, sobald sie geladen sind", () => {
+    const ready = (episodes: Episode[], nextCursor?: string) => ({ status: "ready" as const, value: { episodes, nextCursor } });
+
+    expect(podcastDescription(undefined)).toBe("Podcast");
+    expect(podcastDescription({ status: "loading" })).toBe("Podcast");
+    expect(podcastDescription(ready([]))).toBe("Podcast · noch keine Episoden");
+    expect(podcastDescription(ready([episode(E1, "Folge 1")]))).toBe("Podcast · 1 Episode");
+    expect(podcastDescription(ready([episode(E1, "Folge 1"), episode(E2, "Folge 2")]))).toBe("Podcast · 2 Episoden");
+    // Weitere Seiten: die Zahl ist ein Mindestwert.
+    expect(podcastDescription(ready([episode(E1, "Folge 1")], "c2"))).toBe("Podcast · 1+ Episoden");
+  });
+
+  it("steht am Podcast im Baum", () => {
+    const [own] = tree({ [A]: { status: "ready", value: { episodes: [episode(E1, "Folge 1")] } } });
+
+    expect(own.description).toBe("Podcast · 1 Episode");
+  });
+});
+
+describe("filterPodcastTree", () => {
+  const W = "dddddddddddddddddddddddd";
+  const nodes = buildPodcastTree({
+    podcasts: [...PODCASTS, { id: W, title: "Werkstattgespräch" }],
+    episodes: {
+      [A]: { status: "ready", value: { episodes: [episode(E1, "Arbeitssicherheit"), episode(E2, "Ausbildung im Werk")] } },
+      [W]: { status: "loading" },
+    },
+    config: LATEST,
+    locales: ["de_DE"],
+  });
+
+  it("lässt ohne Suchtext alles stehen", () => {
+    expect(filterPodcastTree(nodes, "  ")).toEqual({ nodes, expand: [] });
+  });
+
+  it("behält einen passenden Podcast mit allem, was darin steht", () => {
+    const { nodes: kept, expand } = filterPodcastTree(nodes, "werkstatt");
+
+    expect(labels(kept)).toEqual(["Werkstattgespräch"]);
+    expect(labels(kept[0].children)).toEqual(["Episoden werden geladen …"]);
+    expect(expand).toEqual([]);
+  });
+
+  it("behält bei passenden Episoden nur diese und klappt ihren Podcast auf", () => {
+    const { nodes: kept, expand } = filterPodcastTree(nodes, "SICHERHEIT");
+
+    expect(labels(kept)).toEqual(["Werkfunk"]);
+    expect(labels(kept[0].children)).toEqual(["Arbeitssicherheit"]);
+    expect(expand).toEqual([podcastNodeId(A)]);
+  });
+
+  it("findet Podcast und Episode nebeneinander, Zustandszeilen nie", () => {
+    expect(labels(filterPodcastTree(nodes, "werk").nodes)).toEqual(["Werkfunk", "Werkstattgespräch"]);
+    expect(filterPodcastTree(nodes, "geladen").nodes).toEqual([]);
   });
 });
 

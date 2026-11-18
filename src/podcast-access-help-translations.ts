@@ -14,9 +14,10 @@
 /**
  * Copy for the "podcast missing?" explanation.
  *
- * Seit dem Fenster „Podcast einstellen“ steht sie aufklappbar unten in dessen
- * Seitenleiste (`podcast-sidebar.tsx`) statt hinter einem Link im Dialog;
- * `episodesUnavailableLabel` und `close` braucht dort niemand mehr. Sie
+ * Seit dem Fenster „Podcast einstellen“ öffnet sie der Link im Fuß von dessen
+ * Seitenleiste als Leiste rechts (`podcast-sidebar.tsx`) statt eines Modals
+ * im Dialog; `episodesUnavailableLabel` und `close` braucht dort niemand
+ * mehr. Sie
  * bleiben, solange die Übersetzungen ohnehin gepflegt werden – ein Feld
  * weniger hieße acht Sprachen anfassen.
  */

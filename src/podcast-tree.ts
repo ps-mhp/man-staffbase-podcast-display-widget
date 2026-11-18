@@ -22,9 +22,13 @@
  * auslöst. Laden, Fehler, „keine Episoden“ und „weitere laden“ sind eigene
  * Zeilen: wählbar, aber sie ändern die Konfiguration nicht, sondern lösen
  * höchstens ein erneutes Laden aus.
+ *
+ * Symbole wie im Screen: ein Mikrofon für den Podcast, Play für die Episode.
+ * Die Suche über dem Baum ({@link filterPodcastTree}) arbeitet auf denselben
+ * Knoten.
  */
 
-import { AudioLines, Info, LoaderCircle, Podcast, RotateCw } from "lucide-react";
+import { Info, LoaderCircle, Mic, Play, RotateCw } from "lucide-react";
 import type { TreeNode } from "@man/config-ui/sidebar/reorder";
 import type { EntityOption } from "@shared/entity-picker/entity-catalog";
 
@@ -92,7 +96,7 @@ function missingEpisode(podcastId: string, list: EpisodeList, config: PodcastCon
   const { episodeId } = config;
   if (config.podcastId !== podcastId || episodeId === undefined) return [];
   if (list.episodes.some((episode) => episode.episodeId === episodeId)) return [];
-  return [{ id: episodeNodeId(podcastId, episodeId), label: episodeId, description: "Gewählte Episode", icon: AudioLines }];
+  return [{ id: episodeNodeId(podcastId, episodeId), label: episodeId, description: "Gewählte Episode", icon: Play }];
 }
 
 interface ChildrenInput {
@@ -112,11 +116,23 @@ function episodeChildren({ podcastId, load, config, locales }: ChildrenInput): T
     id: episodeNodeId(podcastId, episode.episodeId),
     label: episodeTitle(episode, locales),
     description: formatEpisodeDate(episode.publishedAt),
-    icon: AudioLines,
+    icon: Play,
   }));
   const tail = list.nextCursor === undefined ? [] : [moreNode(podcastId, list.more)];
   const all = [...missingEpisode(podcastId, list, config), ...episodes, ...tail];
   return all.length > 0 ? all : [statusNode(podcastId, "Noch keine Episoden", false)];
+}
+
+/**
+ * Die Unterzeile eines Podcasts: „Podcast · 12 Episoden“, sobald seine
+ * Episoden geladen sind. Gibt es weitere Seiten, ist die Zahl ein Mindestwert.
+ */
+export function podcastDescription(load: Loadable<EpisodeList> | undefined): string {
+  if (load?.status !== "ready") return "Podcast";
+  const { episodes, nextCursor } = load.value;
+  if (nextCursor !== undefined) return `Podcast · ${episodes.length}+ Episoden`;
+  if (episodes.length === 0) return "Podcast · noch keine Episoden";
+  return `Podcast · ${episodes.length} ${episodes.length === 1 ? "Episode" : "Episoden"}`;
 }
 
 export interface PodcastTreeInput {
@@ -132,20 +148,54 @@ export interface PodcastTreeInput {
  * stand: er existiert, nützt von hier aus aber nichts.
  */
 export function buildPodcastTree({ podcasts, episodes, config, locales }: PodcastTreeInput): TreeNode[] {
-  const nodeOf = (id: string, label: string, description?: string): TreeNode => ({
+  const nodeOf = (id: string, label: string, description = podcastDescription(episodes[id])): TreeNode => ({
     id: podcastNodeId(id),
     label,
     description,
-    icon: Podcast,
+    icon: Mic,
     children: episodeChildren({ podcastId: id, load: episodes[id], config, locales }),
   });
   const listed = podcasts.map((option) =>
     option.disabled === true
-      ? { id: podcastNodeId(option.id), label: option.title, description: OTHER_SPACE, icon: Podcast }
+      ? { id: podcastNodeId(option.id), label: option.title, description: OTHER_SPACE, icon: Mic }
       : nodeOf(option.id, option.title),
   );
   const known = config.podcastId === "" || podcasts.some((option) => option.id === config.podcastId);
   return known ? listed : [nodeOf(config.podcastId, config.podcastId, "Nicht in der Liste"), ...listed];
+}
+
+/** Was die Suche übrig lässt, und welche Podcasts dafür offen stehen müssen. */
+export interface FilteredTree {
+  nodes: TreeNode[];
+  /** Podcasts, die nur über Episoden passen: aufgeklappt, sonst sähe man die Treffer nicht. */
+  expand: string[];
+}
+
+const normalize = (text: string): string => text.trim().toLocaleLowerCase("de");
+
+/**
+ * Filtert den Baum nach Titeln. Passt ein Podcast, bleibt er mit allem, was
+ * darin steht; passen nur Episoden, bleibt er mit genau diesen. Gesucht wird
+ * in den geladenen Episoden – Zustandszeilen („wird geladen“) zählen nicht.
+ */
+export function filterPodcastTree(nodes: readonly TreeNode[], query: string): FilteredTree {
+  const needle = normalize(query);
+  if (needle === "") return { nodes: [...nodes], expand: [] };
+  const matches = (node: TreeNode): boolean => normalize(node.label).includes(needle);
+  const kept: TreeNode[] = [];
+  const expand: string[] = [];
+  for (const node of nodes) {
+    if (matches(node)) {
+      kept.push(node);
+      continue;
+    }
+    const episodes = (node.children ?? []).filter((child) => parseNodeId(child.id).kind === "episode" && matches(child));
+    if (episodes.length > 0) {
+      kept.push({ ...node, children: episodes });
+      expand.push(node.id);
+    }
+  }
+  return { nodes: kept, expand };
 }
 
 /** Die Zeile, die die Konfiguration zeigt: die Episode nur im Modus „Bestimmte“. */

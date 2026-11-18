@@ -19,13 +19,15 @@
  */
 
 import * as React from "react";
-import { act, render } from "@testing-library/react";
+import { act, fireEvent, render } from "@testing-library/react";
 import Form from "@rjsf/mui";
 import validator from "@rjsf/validator-ajv8";
 
 import { modalRoot, settleModal } from "@shared/ui/config-modal.testing";
 import { configurationSchema } from "./configuration-schema";
+import { pickPodcastAccessHelpText } from "./podcast-access-help-translations";
 import { readPodcastConfig, serializePodcastConfig } from "./podcast-config";
+import { documentLocales } from "./podcast-content";
 import { podcastEditorShell, startPodcastDialog } from "./podcast-dialog";
 import { STYLE_ELEMENT_ID } from "./styles";
 
@@ -220,6 +222,37 @@ describe("startPodcastDialog", () => {
     await click(inModal('[data-testid="config-shell-apply"]'));
 
     expect(readPodcastConfig(fieldValue(container))).toEqual({ podcastId: A, mode: "specific", episodeId: E1, size: "large" });
+
+    await act(async () => stop());
+  });
+
+  it("erklärt in einer Seitenleiste, warum ein Podcast fehlen kann, und lässt den Baum stehen", async () => {
+    const { stop } = await open({});
+
+    // Die Erklärung spricht die Sprache der Seite; im Test ist das Englisch.
+    const text = pickPodcastAccessHelpText(documentLocales());
+    expect(inModal('[data-testid="podcast-access-hint"]')).toBeNull();
+    await click(buttonNamed(text.linkText));
+
+    const panel = inModal('[data-side-panel="podcast-access-help"]');
+    expect(panel).toHaveTextContent(text.title);
+    expect(panel?.querySelector('[data-testid="podcast-access-hint"]')).toHaveTextContent(text.resolveStepsTitle);
+    expect(inModal('[role="treegrid"][aria-label="Podcasts"]')).not.toBeNull();
+
+    await act(async () => stop());
+  });
+
+  it("leert mit Escape erst die Suche, statt das Fenster zu schließen", async () => {
+    const { stop } = await open({});
+    const search = inModal('input[type="search"]') as HTMLInputElement;
+
+    fireEvent.change(search, { target: { value: "werk" } });
+    await act(async () => {
+      fireEvent.keyDown(search, { key: "Escape" });
+    });
+
+    expect(search.value).toBe("");
+    expect(inModal('[data-testid="config-shell"]')).not.toBeNull();
 
     await act(async () => stop());
   });
