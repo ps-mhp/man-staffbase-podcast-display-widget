@@ -23,13 +23,15 @@ import { act, fireEvent, render } from "@testing-library/react";
 import Form from "@rjsf/mui";
 import validator from "@rjsf/validator-ajv8";
 
-import { modalRoot, settleModal } from "@shared/ui/config-modal.testing";
+import { modalRoot, settleModal, settleEditor, clickElement } from "@shared/ui/config-modal.testing";
 import { configurationSchema } from "./configuration-schema";
 import { pickPodcastAccessHelpText } from "./podcast-access-help-translations";
 import { readPodcastConfig, serializePodcastConfig } from "./podcast-config";
 import { documentLocales } from "./podcast-content";
 import { podcastEditorShell, startPodcastDialog } from "./podcast-dialog";
 import { STYLE_ELEMENT_ID } from "./styles";
+
+const EDITOR_SELECTOR = '[role="treegrid"]';
 
 const mockEditorLoaded = jest.fn();
 jest.mock("./podcast-editor", () => {
@@ -79,21 +81,6 @@ const buttonNamed = (name: string): HTMLElement | null =>
     (button) => button.textContent?.trim() === name || button.getAttribute("aria-label") === name,
   ) ?? null;
 
-/** Ein Klick wie von Hilfsmitteln: react-aria nimmt ihn als Druck an. */
-async function click(element: Element | null): Promise<void> {
-  if (element === null) throw new Error("Nichts zum Klicken gefunden");
-  await act(async () => {
-    (element as HTMLElement).click();
-  });
-}
-
-/** Das Modal lädt nach, der Editor darin noch einmal, dann die Liste: so oft warten, bis alles da ist. */
-async function settleEditor(): Promise<void> {
-  for (let round = 0; round < 8 && inModal('[role="treegrid"]') === null; round += 1) {
-    await settleModal();
-  }
-}
-
 /** Der eigene Dialog neben einem fremden mit gleichen Feldnamen (Hotspot: `display-mode`, Navigation: `menu-id`). */
 function Dialogs({ formData }: { formData: Record<string, string> }): React.ReactElement {
   return (
@@ -121,7 +108,7 @@ async function open(formData: Record<string, string>): Promise<{ container: HTML
   await act(async () => {
     stop = startPodcastDialog(container);
   });
-  await settleEditor();
+  await settleEditor(EDITOR_SELECTOR);
   return { container, stop };
 }
 
@@ -178,8 +165,8 @@ describe("startPodcastDialog", () => {
     expect(inModal('[data-testid="config-shell-apply"]')).toBeDisabled();
     expect(buttonNamed("Kompakt")).toHaveAttribute("aria-checked", "true");
 
-    await click(buttonNamed("Groß"));
-    await click(inModal('[data-testid="config-shell-apply"]'));
+    await clickElement(buttonNamed("Groß"));
+    await clickElement(inModal('[data-testid="config-shell-apply"]'));
 
     expect(readPodcastConfig(fieldValue(container))).toEqual({
       podcastId: A,
@@ -208,18 +195,18 @@ describe("startPodcastDialog", () => {
   it("schreibt die gewählte Episode, und übernimmt nichts ohne Podcast", async () => {
     const { container, stop } = await open({});
 
-    await click(inModal('[data-testid="config-shell-apply"]'));
+    await clickElement(inModal('[data-testid="config-shell-apply"]'));
     expect(inModal('[role="status"]')).toHaveTextContent("Keine Änderungen");
 
-    await click(buttonNamed("Bestimmte Episode"));
-    await click(inModal('[data-testid="config-shell-apply"]'));
+    await clickElement(buttonNamed("Bestimmte Episode"));
+    await clickElement(inModal('[data-testid="config-shell-apply"]'));
     expect(fieldValue(container)).toBe("");
     expect(inModal('[role="status"]')).toHaveTextContent("2 Fehler");
 
-    await click(Array.from(modalRoot()!.querySelectorAll('[role="row"]')).find((row) => row.textContent?.includes("Werkfunk")) ?? null);
+    await clickElement(Array.from(modalRoot()!.querySelectorAll('[role="row"]')).find((row) => row.textContent?.includes("Werkfunk")) ?? null);
     await settleModal();
-    await click(Array.from(modalRoot()!.querySelectorAll('[role="row"]')).find((row) => row.textContent?.includes("Folge 1")) ?? null);
-    await click(inModal('[data-testid="config-shell-apply"]'));
+    await clickElement(Array.from(modalRoot()!.querySelectorAll('[role="row"]')).find((row) => row.textContent?.includes("Folge 1")) ?? null);
+    await clickElement(inModal('[data-testid="config-shell-apply"]'));
 
     expect(readPodcastConfig(fieldValue(container))).toEqual({ podcastId: A, mode: "specific", episodeId: E1, size: "large" });
 
@@ -232,7 +219,7 @@ describe("startPodcastDialog", () => {
     // Die Erklärung spricht die Sprache der Seite; im Test ist das Englisch.
     const text = pickPodcastAccessHelpText(documentLocales());
     expect(inModal('[data-testid="podcast-access-hint"]')).toBeNull();
-    await click(buttonNamed(text.linkText));
+    await clickElement(buttonNamed(text.linkText));
 
     const panel = inModal('[data-side-panel="podcast-access-help"]');
     expect(panel).toHaveTextContent(text.title);
@@ -260,7 +247,7 @@ describe("startPodcastDialog", () => {
   it("zeigt in der Vorschau den Entwurf, mit Stylesheet im Fenster statt auf der Wirtsseite", async () => {
     const { stop } = await open({ "podcast-id": A });
 
-    await click(buttonNamed("Desktop"));
+    await clickElement(buttonNamed("Desktop"));
     await settleModal();
 
     expect(inModal('[data-testid="podcast-preview"]')).toHaveAttribute("inert");
