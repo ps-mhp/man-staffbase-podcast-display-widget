@@ -30,13 +30,13 @@
  */
 
 import * as React from "react";
-import { CircleHelp, Search } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 import { FormSection } from "@man/config-ui/form/form-section";
 import { Button } from "@man/config-ui/primitives/button";
-import { Input } from "@man/config-ui/primitives/input";
 import { useSidePanel } from "@man/config-ui/shell/side-panels";
 import { ItemTree } from "@man/config-ui/sidebar/item-tree";
 import { SidebarPanel } from "@man/config-ui/sidebar/sidebar-panel";
+import { SidebarSearch } from "@man/config-ui/sidebar/sidebar-search";
 import type { EntityOption } from "@shared/entity-picker/entity-catalog";
 
 import { PodcastAccessHelpText, pickPodcastAccessHelpText } from "./podcast-access-help-translations";
@@ -68,38 +68,6 @@ function RetryNote({ message, onRetry }: { message: string; onRetry: () => void 
       <Button type="button" variant="outline" size="sm" className="h-10" onClick={onRetry}>
         Erneut versuchen
       </Button>
-    </div>
-  );
-}
-
-interface SearchProps {
-  query: string;
-  onQueryChange: (query: string) => void;
-}
-
-/**
- * Das Suchfeld, beim Scrollen oben stehend. Escape leert es zuerst; erst ein
- * leeres Feld lässt Escape an den Rahmen, der dann schließt.
- */
-function TreeSearch({ query, onQueryChange }: SearchProps): React.ReactElement {
-  return (
-    <div className="sticky top-0 z-10 -mx-2 bg-muted px-4 pb-3">
-      <div className="relative">
-        <Search className="pointer-events-none absolute top-3 left-3 size-4 text-muted-foreground" aria-hidden />
-        <Input
-          type="search"
-          aria-label={SEARCH_LABEL}
-          placeholder={SEARCH_LABEL}
-          value={query}
-          onChange={(event) => onQueryChange(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key !== "Escape" || query === "") return;
-            event.preventDefault();
-            onQueryChange("");
-          }}
-          className="h-10 bg-background pl-[38px]"
-        />
-      </div>
     </div>
   );
 }
@@ -215,7 +183,7 @@ export function PodcastSidebar(props: PodcastSidebarProps): React.ReactElement {
       count={podcasts.status === "ready" ? podcasts.value.length : undefined}
       footer={<AccessHint />}
     >
-      {ready && <TreeSearch query={query} onQueryChange={setQuery} />}
+      {ready && <SidebarSearch aria-label={SEARCH_LABEL} value={query} onValueChange={setQuery} />}
       <PodcastTree {...props} query={query} />
     </SidebarPanel>
   );
