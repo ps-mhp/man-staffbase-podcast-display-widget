@@ -28,10 +28,14 @@
  */
 
 import * as React from "react";
-import { Play, TriangleAlert } from "lucide-react";
+import { Play } from "lucide-react";
 import { Field } from "@man/config-ui/form/field";
+import { FormHeading } from "@man/config-ui/form/form-heading";
 import { FormSection } from "@man/config-ui/form/form-section";
-import { Segmented, SegmentedOption } from "@man/config-ui/form/segmented";
+import { IssueText } from "@man/config-ui/form/issue-text";
+import { Note } from "@man/config-ui/form/note";
+import type { SegmentedOption } from "@man/config-ui/form/segmented";
+import { SegmentedField } from "@man/config-ui/form/segmented-field";
 import { Input } from "@man/config-ui/primitives/input";
 import { useConfigShell } from "@man/config-ui/shell/shell-context";
 
@@ -55,7 +59,6 @@ const SIZE_HINT =
 
 /** Beschriftung eines Felds ohne `<label>`, wie bei `Field`. */
 const LABEL = "text-[13px] font-semibold text-foreground";
-const HINT = "text-[13px] text-muted-foreground";
 
 export interface SectionProps {
   value: PodcastConfig;
@@ -67,47 +70,6 @@ function useIssue(value: PodcastConfig, id: string): string | undefined {
   const { issuesVisible } = useConfigShell();
   if (!issuesVisible) return undefined;
   return validatePodcastConfig(value).find((issue) => issue.id === id)?.message;
-}
-
-/** Eine Meldung wie die von `Field`: Symbol und Text, vorgelesen, sobald sie erscheint. */
-function IssueText({ children }: { children: React.ReactNode }): React.ReactElement {
-  return (
-    <p role="alert" className="flex items-start gap-1.5 text-[13px] text-destructive">
-      <TriangleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-      <span>{children}</span>
-    </p>
-  );
-}
-
-interface PillFieldProps<T extends string> {
-  label: string;
-  options: readonly SegmentedOption<T>[];
-  value: T;
-  onChange: (value: T) => void;
-  hint?: string;
-}
-
-/** Label, Pills und Hinweis; die Pills nur so breit wie ihr Inhalt. */
-function PillField<T extends string>({ label, options, value, onChange, hint }: PillFieldProps<T>): React.ReactElement {
-  const hintId = `${React.useId()}-hint`;
-  return (
-    <div className="flex flex-col gap-1.5">
-      <span className={LABEL}>{label}</span>
-      <Segmented
-        aria-label={label}
-        aria-describedby={hint === undefined ? undefined : hintId}
-        options={options}
-        value={value}
-        onChange={onChange}
-        className="flex-wrap self-start"
-      />
-      {hint !== undefined && (
-        <p id={hintId} className={HINT}>
-          {hint}
-        </p>
-      )}
-    </div>
-  );
 }
 
 export interface PodcastHeadingProps {
@@ -123,13 +85,13 @@ export function PodcastHeading({ value, title, kicker }: PodcastHeadingProps): R
   const issue = useIssue(value, PODCAST_ISSUE);
   const chosen = value.podcastId !== "";
   return (
-    <div className="flex flex-col gap-1.5" data-testid="podcast-heading">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <h2 className="text-xl leading-[1.3] font-semibold text-foreground">{chosen ? title : "Noch kein Podcast gewählt"}</h2>
-        <span className={HINT}>{chosen ? kicker : "Podcast links in der Liste wählen"}</span>
-      </div>
+    <FormHeading
+      title={chosen ? title : "Noch kein Podcast gewählt"}
+      kicker={chosen ? kicker : "Podcast links in der Liste wählen"}
+      data-testid="podcast-heading"
+    >
       {issue !== undefined && <IssueText>{issue}</IssueText>}
-    </div>
+    </FormHeading>
   );
 }
 
@@ -142,19 +104,13 @@ function EpisodeNote({ label, issue }: { label: string; issue: string | undefine
       <span id={labelId} className={LABEL}>
         Episode
       </span>
-      <p
-        data-testid="podcast-episode-note"
-        className="flex items-start gap-2.5 rounded-md bg-secondary px-3.5 py-3 text-[13px] leading-normal text-muted-foreground"
-      >
-        <Play className="mt-0.5 size-4 shrink-0" aria-hidden />
-        <span>
-          <strong className="font-semibold text-foreground">{chosen ? label : "Noch keine Episode gewählt"}</strong>
-          <br />
-          {chosen
-            ? "In der Liste links gewählt. „Neueste Episode“ wechselt von selbst, sobald eine neue Folge erscheint."
-            : "Episode links in der Liste wählen."}
-        </span>
-      </p>
+      <Note icon={Play} data-testid="podcast-episode-note">
+        <strong className="font-semibold text-foreground">{chosen ? label : "Noch keine Episode gewählt"}</strong>
+        <br />
+        {chosen
+          ? "In der Liste links gewählt. „Neueste Episode“ wechselt von selbst, sobald eine neue Folge erscheint."
+          : "Episode links in der Liste wählen."}
+      </Note>
       {issue !== undefined && <IssueText>{issue}</IssueText>}
     </div>
   );
@@ -175,7 +131,7 @@ export function DisplaySection({ value, onChange, episodeLabel, detailed }: Disp
     <FormSection title="Anzeige">
       {/* Im Formular nennt der Kopf den fehlenden Podcast; im Inspektor gibt es keinen. */}
       {!detailed && podcastIssue !== undefined && <IssueText>{podcastIssue}</IssueText>}
-      <PillField label="Welche Episode" options={MODE_OPTIONS} value={value.mode} onChange={(mode) => onChange({ ...value, mode })} />
+      <SegmentedField label="Welche Episode" options={MODE_OPTIONS} value={value.mode} onChange={(mode) => onChange({ ...value, mode })} />
       {specific && detailed && <EpisodeNote label={episodeLabel} issue={episodeIssue} />}
       {specific && !detailed && episodeIssue !== undefined && <IssueText>{episodeIssue}</IssueText>}
     </FormSection>
@@ -190,7 +146,7 @@ export interface PlayerSectionProps extends SectionProps {
 export function PlayerSection({ value, onChange, detailed }: PlayerSectionProps): React.ReactElement {
   return (
     <FormSection title="Player">
-      <PillField
+      <SegmentedField
         label="Größe"
         options={SIZE_OPTIONS}
         value={value.size}

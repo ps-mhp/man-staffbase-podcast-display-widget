@@ -35,6 +35,7 @@ import { FormSection } from "@man/config-ui/form/form-section";
 import { Button } from "@man/config-ui/primitives/button";
 import { useSidePanel } from "@man/config-ui/shell/side-panels";
 import { ItemTree } from "@man/config-ui/sidebar/item-tree";
+import { SidebarFootnote } from "@man/config-ui/sidebar/sidebar-footnote";
 import { SidebarPanel } from "@man/config-ui/sidebar/sidebar-panel";
 import { SidebarSearch } from "@man/config-ui/sidebar/sidebar-search";
 import type { EntityOption } from "@shared/entity-picker/entity-catalog";
@@ -161,13 +162,13 @@ function AccessHint(): React.ReactElement {
   const open = (): void =>
     panels.open({ id: ACCESS_PANEL_ID, title: text.title, content: <div className="px-5 py-4"><AccessHelpBody text={text} /></div> });
   return (
-    <div className="flex flex-col items-start gap-1 text-[13px] leading-[1.45] text-muted-foreground">
+    <SidebarFootnote>
       <p>Die Liste zeigt die Podcasts, auf die dieses Konto zugreifen darf.</p>
       <Button type="button" variant="link" className="-ml-1 h-10 px-1 text-[13px] font-semibold" onClick={open}>
         <CircleHelp aria-hidden />
         {text.linkText}
       </Button>
-    </div>
+    </SidebarFootnote>
   );
 }
 
