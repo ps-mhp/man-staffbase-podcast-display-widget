@@ -25,11 +25,23 @@ import * as React from "react";
 import { Mic } from "lucide-react";
 
 import { FieldModalShellOptions, startFieldModalInjector } from "@shared/config-modal";
+import { legacyFieldsFromSchema, readLegacyFields, startHiddenFields } from "@shared/legacy-fields";
 
-import { LEGACY_ATTRIBUTES, PODCAST_CONFIG_ATTRIBUTE } from "./configuration-schema";
-import { readLegacyFromDialog, startHiddenFields } from "./legacy-fields";
-import { PodcastConfig, configFromLegacy, readPodcastConfig, serializePodcastConfig } from "./podcast-config";
+import { LEGACY_ATTRIBUTES, PODCAST_CONFIG_ATTRIBUTE, configurationSchema } from "./configuration-schema";
+import {
+  LegacyPodcastAttributes,
+  PodcastConfig,
+  configFromLegacy,
+  readPodcastConfig,
+  serializePodcastConfig,
+} from "./podcast-config";
 import { podcastChangesStatus, validatePodcastConfig } from "./podcast-editor-rules";
+
+const LEGACY_FIELDS = legacyFieldsFromSchema(LEGACY_ATTRIBUTES, configurationSchema);
+
+/** Die alten Felder, wie der eigene Dialog sie gerade führt. */
+const readLegacyFromDialog = (root: ParentNode): LegacyPodcastAttributes =>
+  readLegacyFields(LEGACY_FIELDS, PODCAST_CONFIG_ATTRIBUTE, root).values as LegacyPodcastAttributes;
 
 /**
  * Der Editor kommt erst, wenn ein Dialog ihn zeigt: er baut auf

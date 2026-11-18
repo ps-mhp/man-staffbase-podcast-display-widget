@@ -34,7 +34,7 @@ export const PLAYER_SIZE_ATTRIBUTE = "player-size";
  * Die einzelnen Felder bis 0.4.0-rc.3. Sie stehen weiter im Schema, damit der
  * Dialog ihre Werte führt: beim ersten Übernehmen im Fenster wandern sie nach
  * `podcast-config`. Zu sehen sind sie im eigenen Dialog nicht mehr
- * (`legacy-fields.ts`).
+ * (`@shared/legacy-fields`).
  */
 export const LEGACY_ATTRIBUTES = [
   PODCAST_ID_ATTRIBUTE,
